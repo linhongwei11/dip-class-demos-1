@@ -21,6 +21,6 @@ int main()
 
 	//等待键盘响应，按任意键结束程序
 	system("pause");
-    return 0;
+	return 0;
 }
 
