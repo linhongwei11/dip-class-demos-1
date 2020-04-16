@@ -13,8 +13,6 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
-	//blob分析，处理函数
-	rimBlobAnalysis();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();

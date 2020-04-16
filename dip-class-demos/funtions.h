@@ -5,6 +5,6 @@
 
 
 //blob 
-void rimBlobAnalysis();
+void blobAnalysis();
 
 
