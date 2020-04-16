@@ -40,8 +40,8 @@ void rimBlobAnalysis()
 
 	//¼ÆËã¿í³¤±È
 	for (int i = 1; i < nComp; i++) {
-		float width = sttMat.at<int>(i, CC_STAT_WIDTH);
-		float height= sttMat.at<int>(i, CC_STAT_HEIGHT);
+		float width = (float)sttMat.at<int>(i, CC_STAT_WIDTH);
+		float height= (float)sttMat.at<int>(i, CC_STAT_HEIGHT);
 		float ratio = width/height;
 
 		if (
