@@ -70,11 +70,69 @@ void rimBlobAnalysis()
 	}
 
 	delete[] flag;
-	
+
 	imshow("source image",srcMat);
 	imshow("binary image",bnyMat);
 	imshow("hole image",disMat);
 
 	waitKey(0);
 
+}
+
+void chipBlobAnalysis()
+{
+	//定义图像容器
+	Mat srcMat;
+	Mat bnyMat;
+	Mat disMat;
+	Mat sttMat;
+	Mat cntMat;
+	Mat lblMat;
+
+	//读取图片
+	srcMat = imread("F:\\die_on_chip.png");
+	srcMat.copyTo(disMat);
+	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
+
+	//二值化
+	threshold(srcMat, bnyMat, 100, 255, THRESH_OTSU);
+
+	//腐蚀降噪
+	cv::Mat element = cv::Mat::ones(3,3, CV_8UC1);
+	erode(bnyMat,bnyMat, element, cv::Point(-1, -1));
+
+	//通过findContours函数寻找连通域
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(bnyMat,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
+
+
+	//绘制轮廓
+	for (int i = 0; i < contours.size(); i++) {
+		//获得最小外界四边形
+		RotatedRect rbox = minAreaRect(contours[i]);
+
+		float width = (float)rbox.size.width;
+		float height= (float)rbox.size.height;
+		float ratio = width / height;
+
+		if (
+			(ratio > WH_RATIO_LOW)
+			&& (ratio < WH_RATIO_HIGH)
+			)
+		{
+			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8, hierarchy);
+			cv::Point2f vtx[4];
+			rbox.points(vtx);
+			for (int i = 0; i < 4; ++i) {
+				cv::line(disMat, vtx[i], vtx[i<3 ? i + 1 : 0], cv::Scalar(0, 0, 255), 2, CV_AA);
+			}
+		}
+	}
+
+	imshow("source image", srcMat);
+	imshow("binary image", bnyMat);
+	imshow("hole image", disMat);
+
+	waitKey(0);
 }

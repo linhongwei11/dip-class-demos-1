@@ -3,8 +3,8 @@
 
 
 
-
 //blob 
-void blobAnalysis();
+void rimBlobAnalysis();
+void chipBlobAnalysis();
 
 
