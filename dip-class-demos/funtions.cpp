@@ -5,13 +5,14 @@
 using namespace cv;
 using namespace std;
 
-#define WH_RATIO_HIGH	1.2	
-#define WH_RATIO_LOW	0.9	
-#define AREA_TH			100
 
 //blob分析，示例程序
 void rimBlobAnalysis()
 {
+
+	int wh_ratio_high = 1.2;
+	int wh_ratio_low = 1.2;
+	int area_th = 1.2;
 
 	//定义图像容器
 	Mat srcMat;
@@ -45,9 +46,9 @@ void rimBlobAnalysis()
 		float ratio = width/height;
 
 		if (
-			   (ratio > WH_RATIO_LOW)
-			&& (ratio < WH_RATIO_HIGH)
-			&& (sttMat.at<int>(i, CC_STAT_AREA) > AREA_TH)
+			   (ratio > wh_ratio_low)
+			&& (ratio < wh_ratio_high)
+			&& (sttMat.at<int>(i, CC_STAT_AREA) > area_th)
 			)
 		{
 			flag[i] = 1;
@@ -81,6 +82,10 @@ void rimBlobAnalysis()
 
 void chipBlobAnalysis()
 {
+	//宽敞比阈值
+	int wh_ratio_high = 1.2;
+	int wh_ratio_low = 1.2;
+
 	//定义图像容器
 	Mat srcMat;
 	Mat bnyMat;
@@ -90,7 +95,7 @@ void chipBlobAnalysis()
 	Mat lblMat;
 
 	//读取图片
-	srcMat = imread("F:\\die_on_chip.png");
+	srcMat = imread("D:\\die_on_chip.png");
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
@@ -103,28 +108,31 @@ void chipBlobAnalysis()
 
 	//通过findContours函数寻找连通域
 	vector<vector<Point>> contours;
-	vector<Vec4i> hierarchy;
 	findContours(bnyMat,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
 
 
 	//绘制轮廓
 	for (int i = 0; i < contours.size(); i++) {
-		
 		//获得最小外界四边形
 		RotatedRect rbox = minAreaRect(contours[i]);
 
+		//计算宽敞比
 		float width = (float)rbox.size.width;
 		float height= (float)rbox.size.height;
 		float ratio = width / height;
 
+		//条件筛选
 		if (
-			(ratio > WH_RATIO_LOW)
-			&& (ratio < WH_RATIO_HIGH)
+				(ratio > wh_ratio_low)
+			&&	(ratio < wh_ratio_high)
 			)
 		{
+			//绘制轮廓
 			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8);
+			//获取4个顶点
 			cv::Point2f vtx[4];
 			rbox.points(vtx);
+			//绘制4条边
 			for (int i = 0; i < 4; ++i) {
 				cv::line(disMat, vtx[i], vtx[i<3 ? i + 1 : 0], cv::Scalar(0, 0, 255), 2, CV_AA);
 			}
