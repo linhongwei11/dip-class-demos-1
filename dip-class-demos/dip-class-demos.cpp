@@ -14,7 +14,7 @@ int main()
 	double start = static_cast<double>(cvGetTickCount());
 
 	//处理函数
-	//rimBlobAnalysis();
+	rimBlobAnalysis();
 	chipBlobAnalysis();
 
 	//结束计时
@@ -23,7 +23,7 @@ int main()
 	cout << "processing time:" << time / 1000 << "ms" << endl;
 
 	//等待键盘响应，按任意键结束程序
-	system("pause");
+	//system("pause");
 	return 0;
 }
 
