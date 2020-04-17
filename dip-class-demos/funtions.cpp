@@ -109,6 +109,7 @@ void chipBlobAnalysis()
 
 	//绘制轮廓
 	for (int i = 0; i < contours.size(); i++) {
+		
 		//获得最小外界四边形
 		RotatedRect rbox = minAreaRect(contours[i]);
 
@@ -121,7 +122,7 @@ void chipBlobAnalysis()
 			&& (ratio < WH_RATIO_HIGH)
 			)
 		{
-			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8, hierarchy);
+			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8);
 			cv::Point2f vtx[4];
 			rbox.points(vtx);
 			for (int i = 0; i < 4; ++i) {
