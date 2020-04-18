@@ -7,7 +7,6 @@ using namespace std;
 
 
 //blob分析，示例程序
-
 //第八周，练习1，轮毂中的圆孔定位
 void rimBlobAnalysis()
 {
