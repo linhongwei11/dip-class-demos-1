@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include <opencv.hpp>
 #include "funtions.h"
 
@@ -6,8 +6,8 @@ using namespace cv;
 using namespace std;
 
 
-//blob·ÖÎö£¬Ê¾Àý³ÌÐò
-//µÚ°ËÖÜ£¬Á·Ï°1£¬ÂÖì±ÖÐµÄÔ²¿×¶¨Î»
+//blobï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//ï¿½Ú°ï¿½ï¿½Ü£ï¿½ï¿½ï¿½Ï°1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½Ô²ï¿½×¶ï¿½Î»
 void rimBlobAnalysis()
 {
 
@@ -15,7 +15,7 @@ void rimBlobAnalysis()
 	float wh_ratio_low = 0.9;
 	float area_th = 100;
 
-	//¶¨ÒåÍ¼ÏñÈÝÆ÷
+	//ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	Mat srcMat;
 	Mat bnyMat;
 	Mat disMat;
@@ -23,25 +23,25 @@ void rimBlobAnalysis()
 	Mat cntMat;
 	Mat lblMat;
 
-	//¶ÁÈ¡Í¼Æ¬
+	//ï¿½ï¿½È¡Í¼Æ¬
 	srcMat=imread("D:\\rim.png");
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat,srcMat,COLOR_BGR2GRAY);
 
-	//¶þÖµ»¯
+	//ï¿½ï¿½Öµï¿½ï¿½
 	threshold(srcMat,bnyMat,100,255,THRESH_OTSU);
 
-	//·´É«
+	//ï¿½ï¿½É«
 	bnyMat = 255 - bnyMat;
 
-	//Á¬Í¨Óò
+	//ï¿½ï¿½Í¨ï¿½ï¿½
 	int nComp = connectedComponentsWithStats(bnyMat, lblMat, sttMat, cntMat);
 
 	int * flag = new int[nComp];
 	memset(flag, 0, sizeof(int)*nComp);
 
-	//¼ÆËã¿í³¤±È
-	//0ºÅÎª±³¾°£¬Ìø¹ý£¬i=1¿ªÊ¼Ñ­»·
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	//0ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½i=1ï¿½ï¿½Ê¼Ñ­ï¿½ï¿½
 	for (int i = 1; i < nComp; i++) {
 		float width = (float)sttMat.at<int>(i, CC_STAT_WIDTH);
 		float height= (float)sttMat.at<int>(i, CC_STAT_HEIGHT);
@@ -53,23 +53,23 @@ void rimBlobAnalysis()
 			&& (sttMat.at<int>(i, CC_STAT_AREA) > area_th)
 			)
 		{
-			//»æÖÆbounding box
+			//ï¿½ï¿½ï¿½ï¿½bounding box
 			Rect bbox;
-			//bounding box×óÉÏ½Ç×ø±ê
+			//bounding boxï¿½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½
 			bbox.x = sttMat.at<int>(i, 0);
 			bbox.y = sttMat.at<int>(i, 1);
-			//bouding boxµÄ¿íºÍ³¤ 
+			//bouding boxï¿½Ä¿ï¿½Í³ï¿½ 
 			bbox.width = sttMat.at<int>(i, 2);
 			bbox.height = sttMat.at<int>(i, 3);
-			//»æÖÆ
+			//ï¿½ï¿½ï¿½ï¿½
 			rectangle(disMat, bbox, CV_RGB(255, 255, 0), 2, 8, 0);
 
-			//¼ÇÂ¼±êÇ©
+			//ï¿½ï¿½Â¼ï¿½ï¿½Ç©
 			flag[i] = 1;
 		}
 	}
 
-	//É¸Ñ¡³öµÄÏñËØÉÏÉ«
+	//É¸Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
 	for (int i = 0; i<srcMat.rows; i++)
 	{
 		for (int j = 0; j<srcMat.cols; j++)
@@ -97,14 +97,14 @@ void rimBlobAnalysis()
 }
 
 
-//µÚ°ËÖÜ£¬Á·Ï°2£¬Ð¾Æ¬¶¨Î»
+//ï¿½Ú°ï¿½ï¿½Ü£ï¿½ï¿½ï¿½Ï°2ï¿½ï¿½Ð¾Æ¬ï¿½ï¿½Î»
 void chipBlobAnalysis()
 {
-	//¿í³¨±ÈãÐÖµ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 	float wh_ratio_high = 1.2;
 	float wh_ratio_low = 0.9;
 
-	//¶¨ÒåÍ¼ÏñÈÝÆ÷
+	//ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	Mat srcMat;
 	Mat bnyMat;
 	Mat disMat;
@@ -112,45 +112,45 @@ void chipBlobAnalysis()
 	Mat cntMat;
 	Mat lblMat;
 
-	//¶ÁÈ¡Í¼Æ¬
+	//ï¿½ï¿½È¡Í¼Æ¬
 	srcMat = imread("F:\\die_on_chip.png");
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
-	//¶þÖµ»¯
+	//ï¿½ï¿½Öµï¿½ï¿½
 	threshold(srcMat, bnyMat, 100, 255, THRESH_OTSU);
 
-	//¸¯Ê´½µÔë
+	//ï¿½ï¿½Ê´ï¿½ï¿½ï¿½ï¿½
 	cv::Mat element = cv::Mat::ones(3,3, CV_8UC1);
 	erode(bnyMat,bnyMat, element, cv::Point(-1, -1));
 
-	//Í¨¹ýfindContoursº¯ÊýÑ°ÕÒÁ¬Í¨Óò
+	//Í¨ï¿½ï¿½findContoursï¿½ï¿½ï¿½ï¿½Ñ°ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½
 	vector<vector<Point>> contours;
 	findContours(bnyMat,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
 
 
-	//»æÖÆÂÖÀª
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	for (int i = 0; i < contours.size(); i++) {
-		//»ñµÃ×îÐ¡Íâ½çËÄ±ßÐÎ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½
 		RotatedRect rbox = minAreaRect(contours[i]);
 
-		//¼ÆËã¿í³¨±È
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		float width = (float)rbox.size.width;
 		float height= (float)rbox.size.height;
 		float ratio = width / height;
 
-		//Ìõ¼þÉ¸Ñ¡
+		//ï¿½ï¿½ï¿½ï¿½É¸Ñ¡
 		if (
 				(ratio > wh_ratio_low)
 			&&	(ratio < wh_ratio_high)
 			)
 		{
-			//»æÖÆÂÖÀª
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8);
-			//»ñÈ¡4¸ö¶¥µã
+			//ï¿½ï¿½È¡4ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			cv::Point2f vtx[4];
 			rbox.points(vtx);
-			//»æÖÆ4Ìõ±ß
+			//ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½ï¿½ï¿½
 			for (int i = 0; i < 4; ++i) {
 				cv::line(disMat, vtx[i], vtx[i<3 ? i + 1 : 0], cv::Scalar(0, 0, 255), 2, CV_AA);
 			}
@@ -168,7 +168,7 @@ void chipBlobAnalysis()
 }
 
 
-//µÚ°ËÖÜ£¬Á·Ï°3£¬ÕÕÆ¬ÖÐµÄ±­¸Ç¶¨Î»
+//ï¿½Ú°ï¿½ï¿½Ü£ï¿½ï¿½ï¿½Ï°3ï¿½ï¿½ï¿½ï¿½Æ¬ï¿½ÐµÄ±ï¿½ï¿½Ç¶ï¿½Î»
 void libBlobAnalysis()
 {
 	//É¸Ñ¡
@@ -176,11 +176,11 @@ void libBlobAnalysis()
 	int height_th = 50;
 
 	//0-180
-	//ºìÉ«
-	//µÚÒ»¸öHueµÄ·¶Î§
+	//ï¿½ï¿½É«
+	//ï¿½ï¿½Ò»ï¿½ï¿½Hueï¿½Ä·ï¿½Î§
 	double i_minH = 0;
 	double i_maxH = 20;
-	//µÚ¶þ¸öHueµÄ·¶Î§
+	//ï¿½Ú¶ï¿½ï¿½ï¿½Hueï¿½Ä·ï¿½Î§
 	double i_minH2 = 160;
 	double i_maxH2 = 180;
 
@@ -200,29 +200,29 @@ void libBlobAnalysis()
 	Mat bnyMat;
 	Mat lblMat, sttMat, cntMat;
 
-	//×ª»»ÖÁhsvÄ£Ê½
+	//×ªï¿½ï¿½ï¿½ï¿½hsvÄ£Ê½
 	cvtColor(srcMat, hsvMat, COLOR_BGR2HSV);
 	srcMat.copyTo(disMat);
 
 	cv::inRange(hsvMat, Scalar(i_minH, i_minS, i_minV), Scalar(i_maxH, i_maxS, i_maxV), rangeMat1);
 	cv::inRange(hsvMat, Scalar(i_minH2, i_minS, i_minV), Scalar(i_maxH2, i_maxS, i_maxV), rangeMat2);
 
-	//ÓëÔËËã£¬ºÏ²¢Á½¸ö·¶Î§µÄÉ¸Ñ¡½á¹û
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ã£¬ï¿½Ï²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½É¸Ñ¡ï¿½ï¿½ï¿½
 	bnyMat = rangeMat1 + rangeMat2;
 
-	//Á¬Í¨Óò
+	//ï¿½ï¿½Í¨ï¿½ï¿½
 	int nComp = connectedComponentsWithStats(bnyMat, lblMat, sttMat, cntMat);
 
-	//0ºÅÎª±³¾°£¬Ìø¹ý£¬i=1¿ªÊ¼Ñ­»·
+	//0ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½i=1ï¿½ï¿½Ê¼Ñ­ï¿½ï¿½
 	for (int i = 1; i < nComp;i++) {
 		Rect bbox;
-		//bounding box×óÉÏ½Ç×ø±ê
+		//bounding boxï¿½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ï¿½ï¿½
 		bbox.x = sttMat.at<int>(i, 0);
 		bbox.y = sttMat.at<int>(i, 1);
-		//bouding boxµÄ¿íºÍ³¤ 
+		//bouding boxï¿½Ä¿ï¿½Í³ï¿½ 
 		bbox.width = sttMat.at<int>(i, 2);
 		bbox.height = sttMat.at<int>(i, 3);
-		//»æÖÆ
+		//ï¿½ï¿½ï¿½ï¿½
 		if (
 				bbox.width > width_th
 			&&	bbox.height > height_th
