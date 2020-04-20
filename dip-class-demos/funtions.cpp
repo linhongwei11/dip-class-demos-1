@@ -6,8 +6,8 @@ using namespace cv;
 using namespace std;
 
 
-//blob������ʾ������
-//�ڰ��ܣ���ϰ1������е�Բ�׶�λ
+//blob分析，示例程序
+//第八周，练习1，轮毂中的圆孔定位
 void rimBlobAnalysis()
 {
 
@@ -15,7 +15,7 @@ void rimBlobAnalysis()
 	float wh_ratio_low = 0.9;
 	float area_th = 100;
 
-	//����ͼ������
+	//定义图像容器
 	Mat srcMat;
 	Mat bnyMat;
 	Mat disMat;
@@ -23,53 +23,53 @@ void rimBlobAnalysis()
 	Mat cntMat;
 	Mat lblMat;
 
-	//��ȡͼƬ
-	srcMat=imread("D:\\rim.png");
+	//读取图片
+	srcMat = imread("../testImages\\rim.png");
 	srcMat.copyTo(disMat);
-	cvtColor(srcMat,srcMat,COLOR_BGR2GRAY);
+	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
-	//��ֵ��
-	threshold(srcMat,bnyMat,100,255,THRESH_OTSU);
+	//二值化
+	threshold(srcMat, bnyMat, 100, 255, THRESH_OTSU);
 
-	//��ɫ
+	//反色
 	bnyMat = 255 - bnyMat;
 
-	//��ͨ��
+	//连通域
 	int nComp = connectedComponentsWithStats(bnyMat, lblMat, sttMat, cntMat);
 
 	int * flag = new int[nComp];
 	memset(flag, 0, sizeof(int)*nComp);
 
-	//��������
-	//0��Ϊ������������i=1��ʼѭ��
+	//计算宽长比
+	//0号为背景，跳过，i=1开始循环
 	for (int i = 1; i < nComp; i++) {
 		float width = (float)sttMat.at<int>(i, CC_STAT_WIDTH);
-		float height= (float)sttMat.at<int>(i, CC_STAT_HEIGHT);
-		float ratio = width/height;
+		float height = (float)sttMat.at<int>(i, CC_STAT_HEIGHT);
+		float ratio = width / height;
 
 		if (
-			   (ratio > wh_ratio_low)
+			(ratio > wh_ratio_low)
 			&& (ratio < wh_ratio_high)
 			&& (sttMat.at<int>(i, CC_STAT_AREA) > area_th)
 			)
 		{
-			//����bounding box
+			//绘制bounding box
 			Rect bbox;
-			//bounding box���Ͻ�����
+			//bounding box左上角坐标
 			bbox.x = sttMat.at<int>(i, 0);
 			bbox.y = sttMat.at<int>(i, 1);
-			//bouding box�Ŀ�ͳ� 
+			//bouding box的宽和长 
 			bbox.width = sttMat.at<int>(i, 2);
 			bbox.height = sttMat.at<int>(i, 3);
-			//����
+			//绘制
 			rectangle(disMat, bbox, CV_RGB(255, 255, 0), 2, 8, 0);
 
-			//��¼��ǩ
+			//记录标签
 			flag[i] = 1;
 		}
 	}
 
-	//ɸѡ����������ɫ
+	//筛选出的像素上色
 	for (int i = 0; i<srcMat.rows; i++)
 	{
 		for (int j = 0; j<srcMat.cols; j++)
@@ -86,9 +86,9 @@ void rimBlobAnalysis()
 
 	delete[] flag;
 
-	imshow("source image",srcMat);
-	imshow("binary image",bnyMat);
-	imshow("hole image",disMat);
+	imshow("source image", srcMat);
+	imshow("binary image", bnyMat);
+	imshow("hole image", disMat);
 
 	waitKey(0);
 
@@ -97,14 +97,14 @@ void rimBlobAnalysis()
 }
 
 
-//�ڰ��ܣ���ϰ2��оƬ��λ
+//第八周，练习2，芯片定位
 void chipBlobAnalysis()
 {
-	//�������ֵ
+	//宽敞比阈值
 	float wh_ratio_high = 1.2;
 	float wh_ratio_low = 0.9;
 
-	//����ͼ������
+	//定义图像容器
 	Mat srcMat;
 	Mat bnyMat;
 	Mat disMat;
@@ -112,45 +112,45 @@ void chipBlobAnalysis()
 	Mat cntMat;
 	Mat lblMat;
 
-	//��ȡͼƬ
-	srcMat = imread("F:\\die_on_chip.png");
+	//读取图片
+	srcMat = imread("../testImages\\die_on_chip.png");
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
-	//��ֵ��
+	//二值化
 	threshold(srcMat, bnyMat, 100, 255, THRESH_OTSU);
 
-	//��ʴ����
-	cv::Mat element = cv::Mat::ones(3,3, CV_8UC1);
-	erode(bnyMat,bnyMat, element, cv::Point(-1, -1));
+	//腐蚀降噪
+	cv::Mat element = cv::Mat::ones(3, 3, CV_8UC1);
+	erode(bnyMat, bnyMat, element, cv::Point(-1, -1));
 
-	//ͨ��findContours����Ѱ����ͨ��
+	//通过findContours函数寻找连通域
 	vector<vector<Point>> contours;
-	findContours(bnyMat,contours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_NONE);
+	findContours(bnyMat, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
 
-	//��������
+	//绘制轮廓
 	for (int i = 0; i < contours.size(); i++) {
-		//�����С����ı���
+		//获得最小外界四边形
 		RotatedRect rbox = minAreaRect(contours[i]);
 
-		//��������
+		//计算宽敞比
 		float width = (float)rbox.size.width;
-		float height= (float)rbox.size.height;
+		float height = (float)rbox.size.height;
 		float ratio = width / height;
 
-		//����ɸѡ
+		//条件筛选
 		if (
-				(ratio > wh_ratio_low)
-			&&	(ratio < wh_ratio_high)
+			(ratio > wh_ratio_low)
+			&& (ratio < wh_ratio_high)
 			)
 		{
-			//��������
-			drawContours(disMat, contours, i, Scalar(0,255,255), 1, 8);
-			//��ȡ4������
+			//绘制轮廓
+			drawContours(disMat, contours, i, Scalar(0, 255, 255), 1, 8);
+			//获取4个顶点
 			cv::Point2f vtx[4];
 			rbox.points(vtx);
-			//����4����
+			//绘制4条边
 			for (int i = 0; i < 4; ++i) {
 				cv::line(disMat, vtx[i], vtx[i<3 ? i + 1 : 0], cv::Scalar(0, 0, 255), 2, CV_AA);
 			}
@@ -168,19 +168,19 @@ void chipBlobAnalysis()
 }
 
 
-//�ڰ��ܣ���ϰ3����Ƭ�еı��Ƕ�λ
+//第八周，练习3，照片中的杯盖定位
 void libBlobAnalysis()
 {
-	//ɸѡ
+	//筛选
 	int width_th = 50;
 	int height_th = 50;
 
 	//0-180
-	//��ɫ
-	//��һ��Hue�ķ�Χ
+	//红色
+	//第一个Hue的范围
 	double i_minH = 0;
 	double i_maxH = 20;
-	//�ڶ���Hue�ķ�Χ
+	//第二个Hue的范围
 	double i_minH2 = 160;
 	double i_maxH2 = 180;
 
@@ -191,8 +191,8 @@ void libBlobAnalysis()
 	double i_minV = 50;
 	double i_maxV = 255;
 
-	
-	Mat srcMat = imread("F:\lib.jpg");
+
+	Mat srcMat = imread(".. / testImages\\lib.jpg");
 	Mat hsvMat;
 	Mat disMat;
 	Mat rangeMat1;
@@ -200,38 +200,38 @@ void libBlobAnalysis()
 	Mat bnyMat;
 	Mat lblMat, sttMat, cntMat;
 
-	//ת����hsvģʽ
+	//转换至hsv模式
 	cvtColor(srcMat, hsvMat, COLOR_BGR2HSV);
 	srcMat.copyTo(disMat);
 
 	cv::inRange(hsvMat, Scalar(i_minH, i_minS, i_minV), Scalar(i_maxH, i_maxS, i_maxV), rangeMat1);
 	cv::inRange(hsvMat, Scalar(i_minH2, i_minS, i_minV), Scalar(i_maxH2, i_maxS, i_maxV), rangeMat2);
 
-	//�����㣬�ϲ�������Χ��ɸѡ���
+	//与运算，合并两个范围的筛选结果
 	bnyMat = rangeMat1 + rangeMat2;
 
-	//��ͨ��
+	//连通域
 	int nComp = connectedComponentsWithStats(bnyMat, lblMat, sttMat, cntMat);
 
-	//0��Ϊ������������i=1��ʼѭ��
-	for (int i = 1; i < nComp;i++) {
+	//0号为背景，跳过，i=1开始循环
+	for (int i = 1; i < nComp; i++) {
 		Rect bbox;
-		//bounding box���Ͻ�����
+		//bounding box左上角坐标
 		bbox.x = sttMat.at<int>(i, 0);
 		bbox.y = sttMat.at<int>(i, 1);
-		//bouding box�Ŀ�ͳ� 
+		//bouding box的宽和长 
 		bbox.width = sttMat.at<int>(i, 2);
 		bbox.height = sttMat.at<int>(i, 3);
-		//����
+		//绘制
 		if (
-				bbox.width > width_th
+			bbox.width > width_th
 			&&	bbox.height > height_th
-			) 
+			)
 		{
 			rectangle(disMat, bbox, CV_RGB(255, 255, 0), 2, 8, 0);
 		}
 	}
-	
+
 	imshow("source image", srcMat);
 	imshow("binary image", bnyMat);
 	imshow("hole image", disMat);
