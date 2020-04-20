@@ -9,21 +9,21 @@ void readImage()
 {
 
 
-	//00.���뵥��ͼƬ��·�����滻���Լ���ͼƬ��·��
+	//00.读入单张图片，路径可替换成自己的图片的路径
 	cv::Mat srcMat = imread("../testImages\\rim.png");
 
-	//01.���뵥��ͼƬ���Ӳ���0����ʾ���룬��ת���ɻҶ�ͼ
-	cv::Mat gryMat = imread("../testImages\\rim.png",0);
+	//01.读入单张图片，加参数0，表示读入，并转换成灰度图
+	cv::Mat gryMat = imread("../testImages\\rim.png", 0);
 
 
 
-	//��ʾͼƬ
-	imshow("src",srcMat);
-	imshow("gray",gryMat);
+	//显示图片
+	imshow("src", srcMat);
+	imshow("gray", gryMat);
 
-	//��ʾͼƬ������Ҫ��waitKey()�������޷���ʾͼ��
-	//waitKey(0),���޵���ʾ���ڣ�ֱ���κΰ�������
-	//������������֣���waitKey(25)��ʾ25���룬Ȼ��رա�
+	//显示图片，必须要加waitKey()，否则无法显示图像
+	//waitKey(0),无限地显示窗口，直到任何按键按下
+	//如果是其他数字，如waitKey(25)表示25毫秒，然后关闭。
 	waitKey(0);
 
 
