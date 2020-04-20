@@ -25,6 +25,11 @@ void rimBlobAnalysis()
 
 	//读取图片
 	srcMat = imread("../testImages\\rim.png");
+	//读取图片失败
+	if (srcMat.empty()) {
+		cout << "fail to read pic!" << endl;
+		return;
+	}
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
@@ -114,6 +119,11 @@ void chipBlobAnalysis()
 
 	//读取图片
 	srcMat = imread("../testImages\\die_on_chip.png");
+	//读取图片失败
+	if (srcMat.empty()) {
+		cout << "fail to read pic!" << endl;
+		return;
+	}
 	srcMat.copyTo(disMat);
 	cvtColor(srcMat, srcMat, COLOR_BGR2GRAY);
 
@@ -191,8 +201,13 @@ void libBlobAnalysis()
 	double i_minV = 50;
 	double i_maxV = 255;
 
+	Mat srcMat = imread("../testImages\\lib.jpg");
+	//读取图片失败
+	if (srcMat.empty()) {
+		cout << "fail to read pic!" << endl;
+		return;
+	}
 
-	Mat srcMat = imread(".. / testImages\\lib.jpg");
 	Mat hsvMat;
 	Mat disMat;
 	Mat rangeMat1;
