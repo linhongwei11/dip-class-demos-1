@@ -8,11 +8,14 @@
 using namespace cv;
 using namespace std;
 
+//OpenCV中的mat的基本操作demo
 int main()
 {
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
+	readImage();
+	
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
