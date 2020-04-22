@@ -111,6 +111,7 @@ int readVideo()
 	//----------------------读取视频文件--------------------------
 	//实例化VideoCapture类，名为cap，并打开（）中的视频
 	//也可以通过 capVideo.open("../testImages\\vtest.avi"); 打开
+	//如果 capVideo.open(0)则打开默认摄像头，参数0为摄像头的id
 	VideoCapture capVideo("../testImages\\vtest.avi");
 
 	//如果视频打开失败
@@ -152,6 +153,7 @@ int readVideo()
 
 		if (frame.empty()) {
 			cout << "Unable to read frame!" << endl;
+			destroyAllWindows();
 			return -1;
 		}
 
@@ -176,4 +178,119 @@ int readVideo()
 
 	destroyAllWindows();
 	return 0;
+}
+
+//读取连续图片
+int readSequence()
+{
+	//(eg. `img_%02d.jpg`, which will read samples like `img_00.jpg, img_01.jpg, img_02.jpg, ...`)
+	VideoCapture capSequence("../testImages\\sequence\\left%02d.jpg");
+
+	if (!capSequence.isOpened())
+	{
+		cerr << "Unable to open the image sequence!\n" << endl;
+		return 1;
+	}
+
+	cv::Mat frame;
+	while (1) {
+		//视频流中读取图像
+		capSequence >> frame;
+
+		if (frame.empty()) {
+			cout << "Unable to read frame!" << endl;
+			destroyAllWindows();
+			return -1;
+		}
+
+		imshow("frame", frame);
+
+		waitKey(200);
+		
+	}
+
+	return 0;
+
+}
+
+
+
+//Mat类的各种用法示例
+int useMat()
+{
+
+	//---创建Mat---
+	//cols 是 列数 相当于 width  
+	//rows 是 行数 相当于 height 
+	int cols = 4;
+	int rows = 3;
+	int type = CV_32S;
+	int dataArray[] = { 0,  1,  2,  3,
+						10, 11, 12, 13,
+						10, 11, 12, 13 };
+
+	cv::Mat mat1;	//实例化，此操作并不在内存上开辟空间
+	cv::Mat mat2;	//实例化，此操作并不在内存上开辟空间
+	cv::Mat mat3;	//实例化，此操作并不在内存上开辟空间
+
+	//几种方法，进行初始化定义尺寸和类型，并开辟空间
+	mat1.create(rows, cols, type);
+	mat2.create(Size(cols, rows), type);
+	mat3.create(mat1.size(), mat1.type());
+
+	//如果mat1的保存空间连续，则拷贝数组的数据给mat1
+	//Mat的数据实际保存在成员数组 data 里面
+	if (mat1.isContinuous()) {
+		memcpy(mat1.data, dataArray, sizeof(int)*cols*rows);
+	}
+
+	//生成随机数
+	//均一分布的随机数，[0,256)
+	cv::randu(mat2, cv::Scalar(0), cv::Scalar(256));
+	// 正太分布的随机数，mean=128, stddev=10
+	cv::randn(mat3, cv::Scalar(128), cv::Scalar(10));
+
+	std::cout << "m1:" << std::endl << mat1 << std::endl << std::endl;
+	std::cout << "m2:" << std::endl << mat2 << std::endl << std::endl;
+	std::cout << "m3:" << std::endl << mat3 << std::endl << std::endl;
+
+	//---创建Mat---
+	// 创建数据类型为64F, channels=10, 3x3 的2维矩阵
+	cv::Mat mat4(3, 3, CV_64FC(10));
+	//也可以通过CV_MAKETYPE()获得赋值的参数，本例中CV_MAKETYPE(CV_64F, 10)==78
+	cv::Mat mat5(3, 3, CV_MAKETYPE(CV_64F, 10));
+
+	//创建channels=2，int型，2x2矩阵，并赋值，其他数据类型可查matx.hpp中的定义
+	cv::Mat mat6 = (cv::Mat_<cv::Vec2i>(2, 2) << cv::Vec2i(1, 1), cv::Vec2i(2, 4), 
+												 cv::Vec2i(3, 9), cv::Vec2i(4, 16));
+
+	std::cout << "m6:" << std::endl << mat6 << std::endl << std::endl;
+
+	// 5×4矩阵， 5行×4列，元素均为1
+	cv::Mat mat7 = cv::Mat::ones(5, 4, CV_8U) * 3;
+	// 5×4矩阵， 5行×4列，元素均为3
+	cv::Mat mat8 = cv::Mat::ones(5, 4, CV_8U) * 3;
+	// 5×4矩阵， 5行×4列，元素均为0
+	cv::Mat mat9 = cv::Mat::zeros(5,4, CV_8U);
+	// 3×3矩阵， 3行×3列，单位矩阵
+	cv::Mat mat10 = cv::Mat::eye(3, 3, CV_8U);
+
+	std::cout << "m7:" << std::endl << mat7 << std::endl << std::endl;
+	std::cout << "m8:" << std::endl << mat8 << std::endl << std::endl;
+	std::cout << "m9:" << std::endl << mat9 << std::endl << std::endl;
+	std::cout << "m10:" << std::endl << mat10 << std::endl << std::endl;
+
+
+	//Mat数据的复制
+
+
+
+	////cv::Mat m_shallow = m1;
+	//// 深复制(clone和copyTo)
+	//cv::Mat m_deep1 = m1.clone();
+	//cv::Mat m_deep2;
+	//m1.copyTo(m_deep2);
+
+	return 0;
+
 }

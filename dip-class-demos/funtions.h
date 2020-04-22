@@ -8,3 +8,6 @@ using namespace cv;
 //∂¡»°Õº∆¨
 int readImage();
 int readVideo();
+int readSequence();
+
+int useMat();

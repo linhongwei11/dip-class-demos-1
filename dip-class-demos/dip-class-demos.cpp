@@ -14,13 +14,17 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
-	//读取图片demo
-	readImage();
+	//读取图片
+	//readImage();
 
-	//读取视频demo
-	readVideo();
+	//读取视频,以及打开摄像头
+	//readVideo();
 
-	
+	//读取图像序列	
+	//readSequence();
+
+	//Mat的各种基本操作
+	useMat();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
