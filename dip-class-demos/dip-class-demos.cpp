@@ -14,7 +14,12 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
+	//读取图片demo
 	readImage();
+
+	//读取视频demo
+	readVideo();
+
 	
 
 	//结束计时

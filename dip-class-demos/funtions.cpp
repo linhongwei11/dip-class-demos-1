@@ -5,15 +5,18 @@
 using namespace std;
 
 
-void readImage()
+int readImage()
 {
+
+	std::cout << "-----------start to read Image-------------" << std::endl;
+
 	//读入单张图片，路径可替换成自己的图片的路径
 	cv::Mat srcMat = imread("../testImages\\butterfly.jpg");
 
 	//读取图片的一些信息
 	// Mat是否为空，可以判断读图是否成功
 	std::cout << "empty:" << (srcMat.empty() ? "the Mat is empty,fail to read" : "not empty") << std::endl;
-	if (srcMat.empty())return;
+	if (srcMat.empty())return -1;
 
 	//在Mat中
 	//cols 是 列数 相当于 width  
@@ -48,7 +51,6 @@ void readImage()
 	*/
 	std::cout << "depth (ID):" << srcMat.depth() << std::endl;
 
-
 	// channel数，如灰度图为单通道，RGB图为3通道
 	std::cout << "channels:" << srcMat.channels() << std::endl;
 
@@ -79,7 +81,7 @@ void readImage()
 
 	//读入单张图片，加参数0，表示读入，并转换成灰度图
 	cv::Mat gryMat = imread("../testImages\\butterfly.jpg", 0);
-	if (srcMat.empty())return;
+	if (srcMat.empty())return -1;
 	//保存图片
 	imwrite("../testImages\\gray-butterfly.jpg",gryMat);
 
@@ -91,4 +93,87 @@ void readImage()
 	//waitKey(0),无限地显示窗口，直到任何按键按下
 	//如果是其他数字，如waitKey(25)表示25毫秒，然后关闭。
 	waitKey(0);
+
+	//关闭所有窗口
+	destroyAllWindows();
+
+	return 0;
+}
+
+//通过OpenCV读取视频
+int readVideo()
+{
+	std::cout << "-----------start to read Video-------------" << std::endl;
+
+	//读取本地视频，OpenCV可以读取本地视频文件，摄像头，及连续的图像文件
+	//VideCapture为opencv定义的视频数据的类，实际是底层对ffmpeg的封装实现的
+
+	//----------------------读取视频文件--------------------------
+	//实例化VideoCapture类，名为cap，并打开（）中的视频
+	//也可以通过 capVideo.open("../testImages\\vtest.avi"); 打开
+	VideoCapture capVideo("../testImages\\vtest.avi");
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
+
+	//读取视频的一些属性，更多参数可参考videoio_c.h中得定义
+	cout << "parameters" << endl;
+	cout << "width：" << capVideo.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+	cout << "heigth：" << capVideo.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+	cout << "frames：" << capVideo.get(CV_CAP_PROP_FRAME_COUNT) << endl;
+	cout << "fps：" << capVideo.get(CV_CAP_PROP_FPS) << endl;
+
+	//保存文件初始化，VideoWriter为OpenCV中定义的视频保存类
+	VideoWriter writer;
+	//选择编码方式
+	int codec = CV_FOURCC('M', 'J', 'P', 'G');  
+	// 输出的视频地址及名字
+	string filename = "../testImages\\saved.avi";             
+	//定义帧率
+	double fps = capVideo.get(CV_CAP_PROP_FPS);                      
+	//保存的视频的尺寸,此处尺寸缩小一半
+	cv::Size vSize;
+	vSize.width = capVideo.get(CV_CAP_PROP_FRAME_WIDTH) / 2;
+	vSize.height = capVideo.get(CV_CAP_PROP_FRAME_HEIGHT) / 2;
+
+	//打开视频流
+	writer.open(filename, codec, fps, vSize);
+
+	Mat frame;
+	Mat resizeFrame;
+	Mat grayFrame;
+
+	while (1) {
+		//视频流中读取图像
+		capVideo >> frame;
+
+		if (frame.empty()) {
+			cout << "Unable to read frame!" << endl;
+			return -1;
+		}
+
+		//保存到视频流，由于视频文件尺寸降为1/2，frame尺寸也要减半
+		resize(frame,resizeFrame,vSize);
+		writer.write(resizeFrame);
+
+		//可以接各种处理
+		cvtColor(frame, grayFrame, CV_RGB2GRAY);
+
+		imshow("frame",frame);
+		imshow("resizeFrame",resizeFrame);
+		imshow("gray",grayFrame);
+
+		//显示图片，延时30ms，必须要加waitKey()，否则无法显示图像
+		//等待键盘相应，按下ESC键退出
+		if (waitKey(30) == 27){
+			destroyAllWindows();
+			break;
+		}
+	}
+
+	destroyAllWindows();
+	return 0;
 }

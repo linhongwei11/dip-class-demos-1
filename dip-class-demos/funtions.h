@@ -6,4 +6,5 @@ using namespace cv;
 //OpenCV中的mat的基本操作demo
 
 //读取图片
-void readImage();
+int readImage();
+int readVideo();
