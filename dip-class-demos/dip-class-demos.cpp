@@ -16,6 +16,8 @@ int main()
 
 	compareImages();
 
+	//harrisDetector();
+
 	//detectPeople();
 
 	//½áÊø¼ÆÊ±
