@@ -10,7 +10,7 @@ int compareImages()
 {
 
 	//读入图像
-	cv::Mat refMat	= imread("../testImages\\hogTemplate.jpg", 0);
+	cv::Mat refMat	= imread("../testImages\\hogTemplate.jpg",0);
 	cv::Mat plMat	= imread("../testImages\\img1.jpg", 0);
 	cv::Mat bgMat	= imread("../testImages\\img2.jpg", 0);
 
@@ -35,7 +35,6 @@ int compareImages()
 	float * bg_hist = new float[bins];
 	memset(bg_hist, 0, sizeof(float)*bins);
 
-
 	int reCode = 0;
 	//计算三张输入图片的HOG
 	reCode = calcHOG(refMat, ref_hist, nAngle, blockSize);
@@ -50,26 +49,37 @@ int compareImages()
 	float dis1 = normL2(ref_hist, pl_hist, bins);
 	float dis2 = normL2(ref_hist,bg_hist , bins);
 
+	std::cout << "distance between reference and img1:" << dis1 << std::endl;
+	std::cout << "distance between reference and img2:" << dis2 << std::endl;
+
 	(dis1<=dis2) ? (std::cout << "img1 is similar" << std::endl) : (std::cout << "img2 is similar"<<std::endl);
+
+
+	imshow("ref",refMat);
+	imshow("img1",plMat);
+	imshow("img2",bgMat);
+
+	waitKey(0);
 
 	delete[] ref_hist;
 	delete[] pl_hist;
 	delete[] bg_hist;
+	destroyAllWindows();
 
 	return 0;
 }
 
 //手动实现 HOG (Histogram-of-Oriented-Gradients) 
-int calcHOG(cv::Mat src, float * hist,int nAngle,int blockSize)
+int calcHOG(cv::Mat src, float * hist,int nAngle,int cellSize)
 {
 
-	if (blockSize > src.cols || blockSize > src.rows) {
+	if (cellSize> src.cols || cellSize> src.rows) {
 		return -1;
 	}
 
 	//参数设置
-	int nX = src.cols / blockSize;
-	int nY = src.rows / blockSize;
+	int nX = src.cols / cellSize;
+	int nY = src.rows / cellSize;
 
 	int binAngle = 360 / nAngle;
 
@@ -82,27 +92,34 @@ int calcHOG(cv::Mat src, float * hist,int nAngle,int blockSize)
 	// 默认是弧度radians，可以选择角度degrees.
 	cartToPolar(gx, gy, mag, angle, true);
 
+	cv::Rect roi;
+	roi.x = 0;
+	roi.y = 0;
+	roi.width = cellSize;
+	roi.height = cellSize;
 
 	for (int i = 0; i < nY; i++) {
 		for (int j = 0; j < nX; j++) {
-			cv::Rect roi;
+			
 			cv::Mat roiMat;
 			cv::Mat roiMag;
 			cv::Mat roiAgl;
-			roi.x = j*blockSize;
-			roi.y = i*blockSize;
-			roi.width = blockSize;
-			roi.height = blockSize;
+
+			roi.x = j*cellSize;
+			roi.y = i*cellSize;
 
 			//赋值图像
 			roiMat = src(roi);
 			roiMag = mag(roi);
 			roiAgl = angle(roi);
+
+			//当前cell第一个元素在数组中的位置
 			int head = (i*nX + j)*nAngle;
+
 			for (int n = 0; n < roiMat.rows; n++) {
 				for (int m = 0; m < roiMat.cols; m++) {
-					//计算梯度
-					int pos = roiAgl.at<float>(n, m) / binAngle;
+					//计算角度在哪个bin，通过int自动取整实现
+					int pos =(int)(roiAgl.at<float>(n, m) / binAngle);
 					hist[head+pos] += roiMag.at<float>(n, m);
 				}
 			}
