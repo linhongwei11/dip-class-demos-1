@@ -4,7 +4,9 @@
 
 int dftDemo() {
 
+	cv::Mat refMat = imread("../testImages\\lena.jpg", 0);
 
 
 }
+
 
