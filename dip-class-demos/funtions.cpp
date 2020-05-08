@@ -202,17 +202,13 @@ int ifftDemo()
 
 	//这里是以中心为标准，把mag图像分成四部分
 	Mat tmp;
-	Mat q0(mag, Rect(0, 0, cx, cy));   //Top-Left - Create a ROI per quadrant
-	Mat q1(mag, Rect(cx, 0, cx, cy));  //Top-Right
-	Mat q2(mag, Rect(0, cy, cx, cy));  //Bottom-Left
-	Mat q3(mag, Rect(cx, cy, cx, cy)); //Bottom-Right
-
-									   //swap quadrants(Top-Left with Bottom-Right)，交换象限
+	Mat q0(mag, Rect(0, 0, cx, cy));   
+	Mat q1(mag, Rect(cx, 0, cx, cy));  
+	Mat q2(mag, Rect(0, cy, cx, cy));  
+	Mat q3(mag, Rect(cx, cy, cx, cy)); 
 	q0.copyTo(tmp);
 	q3.copyTo(q0);
 	tmp.copyTo(q3);
-
-	// swap quadrant (Top-Rightwith Bottom-Left)，交换象限
 	q1.copyTo(tmp);
 	q2.copyTo(q1);
 	tmp.copyTo(q2);
@@ -236,11 +232,12 @@ int ifftDemo()
 	imwrite("处理后频谱.jpg", proceMag);
 
 	//前述步骤反着来一遍，目的是为了逆变换回原图
-	Mat q00(mag, Rect(0, 0, cx, cy));   //Top-Left - Create a ROI per quadrant
-	Mat q10(mag, Rect(cx, 0, cx, cy));  //Top-Right
-	Mat q20(mag, Rect(0, cy, cx, cy));  //Bottom-Left
-	Mat q30(mag, Rect(cx, cy, cx, cy)); //Bottom-Right
-										//交换象限
+	Mat q00(mag, Rect(0, 0, cx, cy));   	
+	Mat q10(mag, Rect(cx, 0, cx, cy));  
+	Mat q20(mag, Rect(0, cy, cx, cy));  
+	Mat q30(mag, Rect(cx, cy, cx, cy)); 
+	
+	//交换象限
 	q00.copyTo(tmp);
 	q30.copyTo(q00);
 	tmp.copyTo(q30);
@@ -255,7 +252,7 @@ int ifftDemo()
 	merge(planes, 2, complexImg);//将实部虚部合并
 
 
-								 //-----------------------傅里叶的逆变换-----------------------------------
+	//-----------------------傅里叶的逆变换-----------------------------------
 	Mat ifft(Size(src.cols, src.rows), CV_8UC1);
 	//傅里叶逆变换
 	idft(complexImg, ifft, DFT_REAL_OUTPUT);
