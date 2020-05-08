@@ -13,9 +13,9 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
-	//dftDemo();
+	dftDemo();
 	//mouseROI();
-	ifftDemo();
+	//ifftDemo();
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
 	//显示时间
