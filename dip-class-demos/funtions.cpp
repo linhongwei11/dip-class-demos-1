@@ -218,7 +218,6 @@ int readSequence()
 //Mat类的各种用法示例
 int useMat()
 {
-
 	//---创建Mat---
 	//cols 是 列数 相当于 width  
 	//rows 是 行数 相当于 height 
@@ -229,19 +228,23 @@ int useMat()
 						10, 11, 12, 13,
 						10, 11, 12, 13 };
 
-	cv::Mat mat1;	//实例化，此操作并不在内存上开辟空间
+	cv::Mat mat1_0;	//实例化，此操作并不在内存上开辟空间
 	cv::Mat mat2;	//实例化，此操作并不在内存上开辟空间
 	cv::Mat mat3;	//实例化，此操作并不在内存上开辟空间
 
+
 	//几种方法，进行初始化定义尺寸和类型，并开辟空间
-	mat1.create(rows, cols, type);
+	mat1_0.create(rows, cols, type);
 	mat2.create(Size(cols, rows), type);
-	mat3.create(mat1.size(), mat1.type());
+	mat3.create(mat1_0.size(), mat1_0.type());
+
+	//通过指针对mat1初始化
+	cv::Mat mat1_1(rows, cols, CV_32S, &dataArray);
 
 	//如果mat1的保存空间连续，则拷贝数组的数据给mat1
 	//Mat的数据实际保存在成员数组 data 里面
-	if (mat1.isContinuous()) {
-		memcpy(mat1.data, dataArray, sizeof(int)*cols*rows);
+	if (mat1_0.isContinuous()) {
+		memcpy(mat1_0.data, dataArray, sizeof(int)*cols*rows);
 	}
 
 	//生成随机数
@@ -250,7 +253,8 @@ int useMat()
 	// 正太分布的随机数，mean=128, stddev=10
 	cv::randn(mat3, cv::Scalar(128), cv::Scalar(10));
 
-	std::cout << "m1:" << std::endl << mat1 << std::endl << std::endl;
+	std::cout << "m1_0:" << std::endl << mat1_0 << std::endl << std::endl;
+	std::cout << "m1_1:" << std::endl << mat1_1 << std::endl << std::endl;
 	std::cout << "m2:" << std::endl << mat2 << std::endl << std::endl;
 	std::cout << "m3:" << std::endl << mat3 << std::endl << std::endl;
 
@@ -267,7 +271,7 @@ int useMat()
 	std::cout << "m6:" << std::endl << mat6 << std::endl << std::endl;
 
 	// 5×4矩阵， 5行×4列，元素均为1
-	cv::Mat mat7 = cv::Mat::ones(5, 4, CV_8U) * 3;
+	cv::Mat mat7 = cv::Mat::ones(5, 4, CV_8U);
 	// 5×4矩阵， 5行×4列，元素均为3
 	cv::Mat mat8 = cv::Mat::ones(5, 4, CV_8U) * 3;
 	// 5×4矩阵， 5行×4列，元素均为0
@@ -281,16 +285,16 @@ int useMat()
 	std::cout << "m10:" << std::endl << mat10 << std::endl << std::endl;
 
 
-	//Mat数据的复制
-
-
-
-	////cv::Mat m_shallow = m1;
-	//// 深复制(clone和copyTo)
-	//cv::Mat m_deep1 = m1.clone();
-	//cv::Mat m_deep2;
-	//m1.copyTo(m_deep2);
-
 	return 0;
 
+}
+
+int copyMat()
+{
+	return 0;
+}
+
+int calcMat()
+{
+	return 0;
 }

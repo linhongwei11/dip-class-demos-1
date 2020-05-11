@@ -11,3 +11,5 @@ int readVideo();
 int readSequence();
 
 int useMat();
+int copyMat();
+int calcMat();
