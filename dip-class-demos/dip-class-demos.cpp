@@ -13,11 +13,13 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
+	//手动实现简易版HOG，并通过HOG比较两幅图像的相似度
+	//compareImages();
 
-	compareImages();
-
+	//harris角点检测的使用
 	//harrisDetector();
 
+	//行人检测
 	//detectPeople();
 
 	//结束计时

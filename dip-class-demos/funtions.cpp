@@ -89,7 +89,7 @@ int calcHOG(cv::Mat src, float * hist,int nAngle,int cellSize)
 	Sobel(src, gx, CV_32F, 1, 0, 1);
 	Sobel(src, gy, CV_32F, 0, 1, 1);
 	// x方向梯度，y方向梯度，梯度，角度，决定输出弧度or角度
-	// 默认是弧度radians，可以选择角度degrees.
+	// 默认是弧度radians，通过最后一个参数可以选择角度degrees.
 	cartToPolar(gx, gy, mag, angle, true);
 
 	cv::Rect roi;
@@ -155,7 +155,10 @@ int detectPeople()
 
 	Mat frame;
 
+	//创建HOG描述子
 	HOGDescriptor hog;
+	//为SVM分类器设置默认参数
+	//getDefaultPeopleDetector() 返回行人检测的默认参数，(64x128 windows).
 	hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
 
 	while (1) {
@@ -164,17 +167,28 @@ int detectPeople()
 
 		std::vector<cv::Rect> found;
 		
+		//参数：
+		//0.输入图像
+		//1.输出结果向量(检测框)
+		//2.SVM分类器中的阈值，表示特征和分类超平面的距离  
+		//3.HoG检测窗口移动时的步长(水平及竖直)
+		//4.padding，在原图外围添加像素
+		//5.创建金字塔时的扩大比率
+		//6.最终阈值
 		hog.detectMultiScale(frame, found, 0.2, cv::Size(8, 8), cv::Size(16, 16), 1.05, 2);
 
+		//迭代器
 		std::vector<cv::Rect>::const_iterator it;
 
 		std::cout << "found:" << found.size() << std::endl;
 
+		//检测函数会返回比实际目标物稍大一些的检测框，因此此处稍微缩小一点检测框
 		for (it = found.begin(); it != found.end(); ++it) {
 			cv::Rect r = *it;
-			r.x += cvRound(r.width*0.1);
-			r.width = cvRound(r.width*0.8);
-			r.y += cvRound(r.height*0.07);
+			//cvRound，取整函数
+			r.x		+= cvRound(r.width*0.1);
+			r.width  = cvRound(r.width*0.8);
+			r.y		+= cvRound(r.height*0.07);
 			r.height = cvRound(r.height*0.8);
 			cv::rectangle(frame, r.tl(), r.br(), cv::Scalar(0, 255, 0), 3);
 		}
@@ -223,10 +237,21 @@ int harrisDetector()
 
 		Mat dst = Mat::zeros(frame.size(), CV_32FC1);
 
+		//0.输入图像，单通道8位图像 or 浮点图像
+		//1.输出的相应Harris响应结果，类型为CV_32FC1
+		//2.计算特征值的窗口大小
+		//3.Sobel算子的窗口大小
+		//4.公式中的k值，详细见课件
+		//5.边缘处理
 		cornerHarris(gray, dst, blockSize, apertureSize, k, BORDER_DEFAULT);
 
 		//归一化
 		normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+
+		//该函数实行3个功能，乘以尺度，取绝对值，转换至uchar类型的Mat
+		//dst=saturate(alpha*src+beta)
+		//默认值alpha==1 beta==0
+		//故本例中实际就是转换为可显示的uchar类型
 		convertScaleAbs(dst_norm, dst_norm_scaled);
 
 		//标记超过阈值的像素
