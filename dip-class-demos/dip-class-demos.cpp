@@ -23,8 +23,20 @@ int main()
 	//读取图像序列	
 	//readSequence();
 
-	//Mat的各种基本操作
-	useMat();
+	//Mat的创建
+	//createMat();
+
+	//Mat的复制方法
+	//copyMat();
+
+	//Mat的基本运算
+	//calcMat();
+
+	//基本的线性代数操作
+	//calcLinearAlg();
+
+	//利用Mat求解线性方程
+	//solveLinearEquations();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();

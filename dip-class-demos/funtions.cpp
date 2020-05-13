@@ -215,8 +215,8 @@ int readSequence()
 
 
 
-//Mat类的各种用法示例
-int useMat()
+//Mat类的创建方法，及初始化示例
+int createMat()
 {
 	//---创建Mat---
 	//cols 是 列数 相当于 width  
@@ -289,12 +289,221 @@ int useMat()
 
 }
 
+//Mat的复制方法
+//Mat的复制，有深复制及浅复制的分别
 int copyMat()
 {
+	//生成一个3×3的Mat
+	cv::Mat m1 = (cv::Mat_<double>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9);
+
+	//浅复制，实质只是把m1的内存地址赋值给m_shallow
+	//两个Mat在内存中是同一块数据
+	cv::Mat m_shallow = m1;
+
+	//深复制，clone和copyTo，为m_deep1及m_deep2在内存中开辟空间，并且复制内容
+	cv::Mat m_deep1 = m1.clone();
+	cv::Mat m_deep2;
+	m1.copyTo(m_deep2);
+
+	std::cout << "m1=" << m1 << std::endl << std::endl;
+	std::cout << "m_shallow=" << m_shallow << std::endl << std::endl;
+	std::cout << "m_deep1=" << m_deep1 << std::endl << std::endl;
+	std::cout << "m_deep2=" << m_deep2 << std::endl << std::endl;
+
+	// 修改m1的(0,0)位置的数值，注意观察修改以后，其他几个Mat的内容
+	m1.at<double>(0, 0) = 100;
+
+	std::cout << "m1=" << m1 << std::endl << std::endl;
+	std::cout << "m_shallow=" << m_shallow << std::endl << std::endl;
+	std::cout << "m_deep1=" << m_deep1 << std::endl << std::endl;
+	std::cout << "m_deep2=" << m_deep2 << std::endl << std::endl;
+
+
+	//定义ROI并复制
+	//ROI(region of interest)感兴趣区域，即需要被处理的区域
+	//Rect是opencv中定义的矩形数据类型
+	//读入单张图片，路径可替换成自己的图片的路径
+	cv::Mat srcMat = imread("../testImages\\butterfly.jpg");
+	cv::Mat roiMat;
+	cv::Rect roi;
+	roi.x = 0;
+	roi.y = 0;
+	roi.width = srcMat.cols / 2;
+	roi.height = srcMat.rows / 2;
+
+	//定义mask并复制
+	//mask即遮罩，用来屏蔽掉图像中的部分区域
+	//mask的格式为uchar格式的mat，黑色部分表示需要屏蔽的，白色表示不需要遮蔽
+	//生成mask
+	cv::Mat mask= cv::Mat::zeros(srcMat.size(), CV_8U);
+	rectangle(mask,roi,Scalar(255),-1);
+
+	cv::Mat maskedMat;
+
+	//复制ROI区域
+	srcMat(roi).copyTo(roiMat);
+
+	//带mask复制
+	srcMat.copyTo(maskedMat, mask);
+
+	imshow("src",srcMat);
+	imshow("mask",mask);
+	imshow("masked image",maskedMat);
+	imshow("roi",roiMat);
+
+	waitKey(0);
+
 	return 0;
 }
 
+
+//利用Mat进行一些基本运算
 int calcMat()
 {
+	//创建Mat
+	cv::Mat m1 = (cv::Mat_<double>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	std::cout << "m1=" << m1 << std::endl << std::endl;
+
+	//基本四则运算
+	cv::Mat m2 = m1 + 3;
+	cv::Mat m3 = m1 * 3; 
+	cv::Mat m4 = m1 / 3;
+
+	std::cout << "m2=" << m2 << std::endl << std::endl;
+	std::cout << "m3=" << m3 << std::endl << std::endl;
+	std::cout << "m4=" << m4 << std::endl << std::endl;
+
+	//mat和mat的运算
+	cv::Mat m5 = m1 + m1;
+	//m6和m2相同位置的数值相乘
+	cv::Mat m6 = m1.mul(m2);		
+	//相乘后，再乘以系数
+	cv::Mat m7 = m1.mul(m2, 2);	
+
+	std::cout << "m5=" << m5 << std::endl << std::endl;
+	std::cout << "m6=" << m6 << std::endl << std::endl;
+	std::cout << "m7=" << m7 << std::endl << std::endl;
+
+
+	//要确保运算Mat的类型和尺寸相同，如果不同，则抛出异常
+	//Mat类型不同 
+	cv::Mat m8 = (cv::Mat_<int>(3, 3) << 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	try {
+		std::cout << m1 / m8 << std::endl;
+	}
+	catch (cv::Exception e) {
+		std::cout << std::endl;
+	}
+
+	//Mat的尺寸不同 
+	cv::Mat m9 = (cv::Mat_<double>(2, 2) << 1, 2, 3, 4);
+	try {
+		std::cout << m9 / m1 << std::endl;
+	}
+	catch (cv::Exception e) {
+		// ...
+		std::cout << std::endl;
+	}
+
+
+	return 0;
+}
+
+//一些基本的线性代数操作
+int calcLinearAlg()
+{
+	//向量的內积和外积
+	cv::Vec3d v1(1, 2, 3);
+	cv::Vec3d v2(3, 4, 5);
+
+	//內积 
+	double v_dot = v1.dot(v2);
+	//外积
+	cv::Vec3d v_cross = v1.cross(v2);
+	std::cout << "v_dot=" << v_dot << std::endl;
+	cv::Mat tmp(v_cross);
+	std::cout << "v_cross=" << tmp << std::endl;
+
+	//求范数
+	// 6x1 
+	cv::Mat m1 = (cv::Mat_<double>(6, 1) << 1, 5, 3, -1, -3, -5);
+	// 向量(3,4)
+	cv::Point p1(3, 4);
+	// 6维度向量的 L-2范数
+	double norm_m1 = cv::norm(m1); 
+	// 2维度向量的 L-2范数
+	double norm_p1 = cv::norm(p1); 
+
+	std::cout << std::endl;
+	std::cout << "norm(m1)=" << norm_m1 << std::endl;
+	std::cout << "norm(p1)=" << norm_p1 << std::endl << std::endl;
+
+	// 通过2维坐标，计算极坐标，即大小和角度
+	std::cout << "calc Polar" << std::endl;
+	//创建4组2维坐标
+	cv::Mat x = (cv::Mat_<double>(4, 1) << 0, 1, 4, 1);
+	cv::Mat y = (cv::Mat_<double>(4, 1) << 1, 1, 3, 1.7320504);
+	cv::Mat magnitude, angle;
+	cv::cartToPolar(x, y, magnitude, angle, true); 
+
+	for (int i = 0; i<4; ++i) {
+		std::cout << "(" << x.at<double>(i) << ", " << y.at<double>(i) << ") ";
+		std::cout << "mag=" << magnitude.at<double>(i) << ", angle=" << angle.at<double>(i) << "[deg]" << std::endl;
+	}
+
+	std::cout << std::endl;
+	// 通过大小和角度，计算2维坐标
+	std::cout << "calc Cartesian" << std::endl;
+	cv::Mat mag2 = (cv::Mat_<double>(4, 1) << 1, 1.41421, 5, 2);
+	cv::Mat ang2 = (cv::Mat_<double>(4, 1) << 90, 45, 36.8699, 60);
+
+	cv::Mat x2, y2;
+	cv::polarToCart(mag2, ang2, x2, y2, true); // in degrees
+
+	for (int i = 0; i<4; ++i) {
+		std::cout << "(" << x2.at<double>(i) << ", " << y2.at<double>(i) << ") ";
+		std::cout << "mag=" << mag2.at<double>(i) << ", angle=" << ang2.at<double>(i) << "[deg]" << std::endl;
+	}
+
+	std::cout << std::endl;
+
+	return 0;
+}
+
+//求解线性方程
+int solveLinearEquations()
+{
+	//独立方程数和未知数相同时
+	//  x +  y +  z = 6
+	// 3x + 2y - 2z = 1
+	// 2x - y  + 3z = 9
+	//左边 
+	cv::Mat lhand = (cv::Mat_<double>(3, 3) << 1, 1, 1, 3, 2, -2, 2, -1, 3);
+	//右边 
+	cv::Mat rhand = (cv::Mat_<double>(3, 1) << 6, 1, 9);
+
+	//高斯消去法求解 
+	cv::Mat ans;
+	cv::solve(lhand, rhand, ans);
+
+	std::cout << "Gaussian elimination" << std::endl;
+	std::cout << "(x,y,z) = " << ans << std::endl << std::endl;
+	//独立方程数 多于 未知数数量时
+	//通过最小二乘法求解
+	//  x +  y = 3  
+	// 3x + 4y = 8 
+	// -x - 2y = 2 
+	std::cout << "the least square method" << std::endl;
+	cv::Mat lhand2 = (cv::Mat_<double>(3, 2) << 1, 1, 3, 4, -1, -2);
+	cv::Mat rhand2 = (cv::Mat_<double>(3, 1) << 3, 8, 2);
+
+	cv::Mat x;
+	//通过SVD求解最小二乘法
+	//方程组左侧，方程组右侧，输出，求解方法
+	cv::solve(lhand2, rhand2, x, cv::DECOMP_SVD);
+
+	std::cout << "(x,y) = " << x << std::endl;
+	std::cout << "norm(lhand2*x-rhand2)=" << norm(lhand2*x - rhand2) << std::endl << std::endl;
+
 	return 0;
 }

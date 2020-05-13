@@ -10,6 +10,9 @@ int readImage();
 int readVideo();
 int readSequence();
 
-int useMat();
+//Mat的创建，复制及运算。包括Mat的各种参数解释
+int createMat();
 int copyMat();
 int calcMat();
+int calcLinearAlg();
+int solveLinearEquations();
