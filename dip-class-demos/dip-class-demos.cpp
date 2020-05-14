@@ -13,6 +13,11 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
+	//gamma矫正演示
+	//gammaMain();
+
+	//直方图均衡演示
+	equalizeMain();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
