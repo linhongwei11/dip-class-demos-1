@@ -27,6 +27,11 @@ int main()
 	//绘制椭圆，或圆弧
 	//drawEllipse();
 
+	//绘制标记
+	//drawMarkers();
+
+	//字符
+	writeText();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
