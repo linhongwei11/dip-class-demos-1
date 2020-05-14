@@ -6,6 +6,7 @@
 int gammaMain()
 {
 
+	cv::Mat srcMat = imread("../testImages\\gammaTest.jpg", 0);
 
 
 	return 0;
