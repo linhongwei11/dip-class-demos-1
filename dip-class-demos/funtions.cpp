@@ -6,7 +6,7 @@
 int gammaMain()
 {
 
-	cv::Mat srcMat = imread("../testImages\\gammaTest2.jpg", 0);
+	cv::Mat srcMat = imread("../testImages\\gtest.jpg", 0);
 	cv::Mat dstMat;
 
 	if (srcMat.empty()) {
@@ -29,10 +29,32 @@ int gammaMain()
 
 int equalizeMain()
 {
-	cv::Mat srcMat = imread("../testImages\\gammaTest2.jpg", 0);
+	cv::Mat srcMat = imread("../testImages\\face.jpg",0);
 	cv::Mat dstMat;
 
-	equalizeHist(srcMat, dstMat);
+	if (srcMat.empty()) {
+		cout << "fail to read pic!" << endl;
+		return -1;
+	}
+
+	//0.输入图像，类型是 8位单通道
+	//1.输出图像，与输入同样尺寸同样类型
+	if (srcMat.type() == CV_8UC1) {
+		equalizeHist(srcMat, dstMat);
+	}
+	else if (srcMat.type() == CV_8UC3) {
+		Mat channel[3];
+		Mat out[3];
+		split(srcMat, channel);
+
+		for (int i = 0; i < 3; i++) {
+			equalizeHist(channel[i], out[i]);
+		}
+
+		merge(out,3,dstMat);
+
+	}
+
 
 	//绘制直方图
 	float srcHist[256];
@@ -41,15 +63,15 @@ int equalizeMain()
 	cv::Mat srcHistMat;
 	cv::Mat dstHistMat;
 
-	calcSimpleHist(srcMat, srcHist);
-	calcSimpleHist(dstMat, dstHist);
-	drawSimpleHist(srcHistMat, srcHist);
-	drawSimpleHist(dstHistMat, dstHist);
+	//calcIntenHist(srcMat, srcHist);
+	//calcSimpleHist(dstMat, dstHist);
+	//drawSimpleHist(srcHistMat, srcHist,3,100);
+	//drawSimpleHist(dstHistMat, dstHist,3,100);
 
 	imshow("srcMat", srcMat);
 	imshow("dstMat", dstMat);
-	imshow("srcHistMat", srcHistMat);
-	imshow("dstHistMat", dstHistMat);
+	/*imshow("srcHistMat", srcHistMat);
+	imshow("dstHistMat", dstHistMat);*/
 
 	waitKey(0);
 
@@ -71,6 +93,7 @@ int gammaCorrection(cv::Mat srcMat, cv::Mat & dstMat, float gamma)
 	{
 		//saturate_cast，防止像素值溢出，如果值<0,则返回0，如果大于255，则返回255
 		lut[i] = saturate_cast<uchar>(pow((float)(i / 255.0), gamma) * 255.0f);
+		float inten = (float)i;
 	}
 
 	srcMat.copyTo(dstMat);
@@ -83,29 +106,27 @@ int gammaCorrection(cv::Mat srcMat, cv::Mat & dstMat, float gamma)
 	return 0;
 }
 
-int drawSimpleHist(cv::Mat & histMat, float * srcHist)
+int drawIntenHist(cv::Mat & histMat, float * srcHist,int bin_width,int bin_heght)
 {
-	int h = 100;
-	int bin = 3;
-	histMat.create(100, 256 * bin, CV_8UC1);
-	histMat = Scalar(255);
+	histMat.create(100, 256 * bin_width, CV_8UC3);
+	histMat = Scalar(255,255,255);
 
 	float maxVal = *std::max_element(srcHist, srcHist + 256);
 
 	for (int i = 0; i < 256; i++) {
 		Rect binRect;
-		binRect.x = i*bin;
-		float height_i = (float)h*srcHist[i] / maxVal;
+		binRect.x = i*bin_width;
+		float height_i = (float)bin_heght*srcHist[i] / maxVal;
 		binRect.height = (int)height_i;
-		binRect.y = h - binRect.height;
-		binRect.width = bin;
-		rectangle(histMat, binRect, CV_RGB(50, 50, 50), -1);
+		binRect.y = bin_heght- binRect.height;
+		binRect.width = bin_width;
+		rectangle(histMat, binRect, CV_RGB(255, 0, 0), -1);
 	}
 
 	return 0;
 }
 
-int calcSimpleHist(const cv::Mat src, float * dstHist)
+int calcIntenHist(const cv::Mat src, float * dstHist)
 {
 
 	//输入必为灰度图
@@ -121,7 +142,6 @@ int calcSimpleHist(const cv::Mat src, float * dstHist)
 	{
 		// 获取第k行的首地址
 		const uchar* inData = src.ptr<uchar>(k);
-		//uchar* outData = dstImg.ptr<uchar>(k);
 		//处理每个像素
 		for (int i = 0; i < width; i++)
 		{
@@ -140,7 +160,7 @@ int calcSimpleHist(const cv::Mat src, float * dstHist)
 	return 0;
 }
 
-int calcSimpleHistWithMask(const cv::Mat src, const cv::Mat mask, float * dstHist)
+int calcIntenHistWithMask(const cv::Mat src, const cv::Mat mask, float * dstHist)
 {
 	//输入必为灰度图
 	if (	src.type()  != CV_8UC1 ||
