@@ -200,7 +200,7 @@ int gammaCorrection(cv::Mat srcMat, cv::Mat & dstMat, float gamma)
 
 int drawIntenHist(cv::Mat & histMat, float * srcHist,int bin_width,int bin_heght)
 {
-	histMat.create(100, 256 * bin_width, CV_8UC3);
+	histMat.create(bin_heght, 256 * bin_width, CV_8UC3);
 	histMat = Scalar(255,255,255);
 
 	float maxVal = *std::max_element(srcHist, srcHist + 256);
