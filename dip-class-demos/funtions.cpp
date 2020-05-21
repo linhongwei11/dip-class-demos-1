@@ -19,8 +19,11 @@ int verifyGaussian()
 
 
 	int cnt = 0;
-
+	int bin_width = 3;
+	int bin_heght = 50;
 	float histgram[256] = {0};
+
+	cv::Mat histMat;
 
 	while (1) {
 
@@ -32,7 +35,6 @@ int verifyGaussian()
 			std::cout << "Unable to read frame!" << std::endl;
 			return -1;
 		}
-
 
 		//第一帧选取像素
 		if (cnt == 0) {
@@ -52,12 +54,12 @@ int verifyGaussian()
 		//直方图相应的bin加1
 		histgram[index]++;
 
-
-
-
+		//绘制直方图
+		drawHist(histMat, histgram, bin_width,bin_heght);
 
 		drawMarker(frame, vP, Scalar(255, 255, 255));
 		imshow("frame",frame);
+		imshow("histMat",histMat);
 
 		waitKey(30);
 		cnt++;
@@ -96,40 +98,24 @@ void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 
 }
 
-int selectPolygon(cv::Mat srcMat, cv::Mat &dstMat)
+//绘制直方图
+int drawHist(cv::Mat & histMat, float * srcHist, int bin_width, int bin_heght)
 {
+	histMat.create(bin_heght, 256 * bin_width, CV_8UC3);
 
-	vector<vector<Point>> contours;
-	cv::Mat selectMat;
+	histMat = Scalar(255, 255, 255);
 
-	cv::Mat m = cv::Mat::zeros(srcMat.size(), CV_32F);
+	float maxVal = *std::max_element(srcHist, srcHist + 256);
 
-	m = 1;
-
-	if (!srcMat.empty()) {
-		srcMat.copyTo(selectMat);
-		srcMat.copyTo(dstMat);
+	for (int i = 0; i < 256; i++) {
+		Rect binRect;
+		binRect.x = i*bin_width;
+		float height_i = (float)bin_heght*srcHist[i] / maxVal;
+		binRect.height = (int)height_i;
+		binRect.y = bin_heght - binRect.height;
+		binRect.width = bin_width;
+		rectangle(histMat, binRect, CV_RGB(255, 0, 0), -1);
 	}
-	else {
-		std::cout << "failed to read image!:" << std::endl;
-		return -1;
-	}
-
-	namedWindow("mouseCallback");
-	imshow("mouseCallback", selectMat);
-	setMouseCallback("mouseCallback", on_mouse, &selectMat);
-	waitKey(0);
-	destroyAllWindows();
-	//计算roi
-	//contours.push_back(mousePoints);
-	if (contours[0].size() < 3) {
-		std::cout << "failed to read image!:" << std::endl;
-		return -1;
-	}
-
-	drawContours(m, contours, 0, Scalar(0), -1);
-
-	m.copyTo(dstMat);
 
 	return 0;
 }
