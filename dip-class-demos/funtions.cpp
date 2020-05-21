@@ -17,7 +17,6 @@ int verifyGaussian()
 		return -1;
 	}
 
-
 	int cnt = 0;
 	int bin_width = 3;
 	int bin_heght = 50;
@@ -65,15 +64,39 @@ int verifyGaussian()
 		cnt++;
 	}
 
+	return 0;
+}
+
+
+int bgSub_demo()
+{
+
+	//----------------------读取视频文件--------------------------
+	VideoCapture capVideo("../testImages\\vtest.avi");
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
+
+	//使用几张图片进行背景建模
+	int modelNum = 20;
+
+	int cnt = 0;
+
+	Mat bgModelMat;
+
+	while (1) {
 
 
 
+	}
 
 
 
 	return 0;
 }
-
 
 
 //鼠标响应函数

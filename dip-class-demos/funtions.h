@@ -9,4 +9,5 @@ int drawHist(cv::Mat & histMat, float * srcHist, int bin_width, int bin_heght);
 
 
 int verifyGaussian();
+int bgSub_demo();
 
