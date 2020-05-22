@@ -17,10 +17,10 @@ int main()
 	//verifyGaussian();
 
 
-	//bgSub_demo();
+	bgSub_demo();
 
 
-	bgSubGaussian_demo();
+	//bgSubGaussian_demo();
 
 	//½áÊø¼ÆÊ±
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();

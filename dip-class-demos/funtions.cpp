@@ -5,11 +5,16 @@
 //观察的位置
 cv::Point vP;
 
+int sub_threshold = 0;
+Mat bgMat;
+Mat subMat;
+Mat bny_subMat;
+
 void threshold_track(int, void *)//这里就是定义的一个回调函数，里面是canny相关的操作
 {
-	//Mat result;
-	//threshold(subMat, diff_thresh, 100, 255, CV_THRESH_BINARY);
-	//imshow("边缘检测", result);
+
+	threshold(subMat, bny_subMat,sub_threshold , 255, CV_THRESH_BINARY);
+	imshow("Result", bny_subMat);
 }
 
 
@@ -93,9 +98,6 @@ int bgSub_demo()
 	int cnt = 0;
 
 	Mat frame;
-	Mat bgMat;
-	Mat subMat;
-	Mat bny_subMat;
 
 	while (1) {
 
@@ -111,9 +113,12 @@ int bgSub_demo()
 			//背景图像和当前图像相减
 			absdiff(frame, bgMat, subMat);
 			//差分结果二值化
-			threshold(subMat, bny_subMat,20, 255, CV_THRESH_BINARY);
 
-			imshow("b_subMat",bny_subMat);
+			namedWindow("Result", WINDOW_AUTOSIZE);
+			//滑动条创建
+			cv::createTrackbar("threshold", "Result", &sub_threshold, 255, threshold_track);
+			threshold_track(0,0);
+
 			imshow("frame",frame);
 			waitKey(30);
 		}
