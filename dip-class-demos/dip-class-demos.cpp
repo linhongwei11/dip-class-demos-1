@@ -14,7 +14,13 @@ int main()
 	double start = static_cast<double>(cvGetTickCount());
 
 	//该demo验证并演示，视频中的像素灰度值变换是否呈高斯分布
-	verifyGaussian();
+	//verifyGaussian();
+
+
+	//bgSub_demo();
+
+
+	bgSubGaussian_demo();
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();

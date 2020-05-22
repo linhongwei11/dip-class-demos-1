@@ -5,11 +5,20 @@
 //观察的位置
 cv::Point vP;
 
+void threshold_track(int, void *)//这里就是定义的一个回调函数，里面是canny相关的操作
+{
+	//Mat result;
+	//threshold(subMat, diff_thresh, 100, 255, CV_THRESH_BINARY);
+	//imshow("边缘检测", result);
+}
+
+
 //该demo验证并演示，视频中的像素灰度值变换是否呈高斯分布
 int verifyGaussian()
 {
 	//----------------------读取视频文件--------------------------
-	VideoCapture capVideo("../testImages\\vtest.avi");
+	//VideoCapture capVideo("../testImages\\vtest.avi");
+	VideoCapture capVideo(0);
 
 	//如果视频打开失败
 	if (!capVideo.isOpened()) {
@@ -70,9 +79,9 @@ int verifyGaussian()
 
 int bgSub_demo()
 {
-
 	//----------------------读取视频文件--------------------------
-	VideoCapture capVideo("../testImages\\vtest.avi");
+	VideoCapture capVideo(0);
+	//VideoCapture capVideo("../testImages\\vtest.avi");
 
 	//如果视频打开失败
 	if (!capVideo.isOpened()) {
@@ -80,23 +89,101 @@ int bgSub_demo()
 		return -1;
 	}
 
-	//使用几张图片进行背景建模
-	int modelNum = 20;
-
+	//计数器
 	int cnt = 0;
 
-	Mat bgModelMat;
+	Mat frame;
+	Mat bgMat;
+	Mat subMat;
+	Mat bny_subMat;
 
 	while (1) {
 
+		capVideo >> frame;
+		cvtColor(frame,frame,COLOR_BGR2GRAY);
 
+		if (cnt== 0) {
+			//第一帧，获得背景图像
+			frame.copyTo(bgMat);
+		}
+		else {
+			//第二帧开始背景差分
+			//背景图像和当前图像相减
+			absdiff(frame, bgMat, subMat);
+			//差分结果二值化
+			threshold(subMat, bny_subMat, 100, 255, CV_THRESH_BINARY);
+
+			imshow("b_subMat",bny_subMat);
+			imshow("subMat",subMat);
+
+			waitKey(30);
+		}
+
+		cnt++;
+	}
+
+	return 0;
+}
+
+int bgSubGaussian_demo()
+{
+	//----------------------读取视频文件--------------------------
+	VideoCapture capVideo(0);
+	//VideoCapture capVideo("../testImages\\vtest.avi");
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
+
+	//用来建立背景模型的数量
+	int nBg = 20;
+
+	//用来计算背景模型的图像
+	std::vector<cv::Mat> srcMats;
+
+	int cnt = 0;
+	cv::Mat frame;
+	cv::Mat bgMat;
+//	cv::Mat srcMat;
+
+	while (true)
+	{
+		capVideo >> frame;
+		cvtColor(frame, frame, COLOR_BGR2GRAY);
+
+		//前面的nBg帧，计算背景
+		if (cnt < nBg) {
+			srcMats.push_back(frame);
+		}
+		else if (cnt == nBg) {
+			//计算模型
+			calcGausianBackground(srcMats,bgMat);
+			break;
+		}
+		else {
+			//背景差分
+
+		}
+
+		cnt++;
 
 	}
 
 
+	for (int i = 0; i < srcMats.size(); i++) {
+
+
+	}
 
 	return 0;
 }
+
+int calcGausianBackground(std::vector<cv::Mat> srcMats, cv::Mat & bgMat)
+{
+	return 0;
+ }
 
 
 //鼠标响应函数
