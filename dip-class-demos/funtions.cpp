@@ -145,7 +145,8 @@ int bgSubGaussian_demo()
 
 	int cnt = 0;
 	cv::Mat frame;
-	cv::Mat bgMat;
+	cv::Mat meanMat;
+	cv::Mat varMat;
 //	cv::Mat srcMat;
 
 	while (true)
@@ -159,7 +160,12 @@ int bgSubGaussian_demo()
 		}
 		else if (cnt == nBg) {
 			//计算模型
-			calcGausianBackground(srcMats,bgMat);
+
+			meanMat.create(frame.size(),CV_8UC1);
+			varMat.create(frame.size(),CV_8UC1);
+
+			calcGausianBackground(srcMats,meanMat,varMat);
+
 			break;
 		}
 		else {
@@ -171,17 +177,16 @@ int bgSubGaussian_demo()
 
 	}
 
-
-	for (int i = 0; i < srcMats.size(); i++) {
-
-
-	}
-
 	return 0;
 }
 
-int calcGausianBackground(std::vector<cv::Mat> srcMats, cv::Mat & bgMat)
+int calcGausianBackground(std::vector<cv::Mat> srcMats, cv::Mat & meanMat, cv::Mat &varMat)
 {
+
+
+
+
+
 	return 0;
  }
 

@@ -11,5 +11,5 @@ int drawHist(cv::Mat & histMat, float * srcHist, int bin_width, int bin_heght);
 int verifyGaussian();
 int bgSub_demo();
 int bgSubGaussian_demo();
-int calcGausianBackground(std::vector<cv::Mat> srcMats,cv::Mat &bgMat);
+int calcGausianBackground(std::vector<cv::Mat> srcMats,cv::Mat & meanMat,cv::Mat &varMat);
 
