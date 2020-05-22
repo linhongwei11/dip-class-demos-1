@@ -76,7 +76,12 @@ int verifyGaussian()
 		imshow("frame",frame);
 		imshow("histMat",histMat);
 
-		waitKey(30);
+		//显示图片，延时30ms，必须要加waitKey()，否则无法显示图像
+		//等待键盘相应，按下ESC键退出
+		if (waitKey(30) == 27) {
+			destroyAllWindows();
+			break;
+		}
 		cnt++;
 	}
 
@@ -103,6 +108,11 @@ int bgSub_demo()
 		capVideo >> frame;
 		cvtColor(frame,frame,COLOR_BGR2GRAY);
 
+		if (frame.empty()) {
+			std::cout << "Unable to read frame!" << std::endl;
+			return -1;
+		}
+
 		if (cnt== 0) {
 			//第一帧，获得背景图像
 			frame.copyTo(bgMat);
@@ -118,7 +128,13 @@ int bgSub_demo()
 			threshold_track(0,0);
 
 			imshow("frame",frame);
-			waitKey(30);
+		}
+
+		//显示图片，延时30ms，必须要加waitKey()，否则无法显示图像
+		//等待键盘相应，按下ESC键退出
+		if (waitKey(30) == 27) {
+			destroyAllWindows();
+			break;
 		}
 
 		cnt++;
@@ -149,11 +165,11 @@ int bgSubGaussian_demo()
 	std::vector<cv::Mat> srcMats;
 
 	
-	//参数设置
-	int nBg = 200;		//用来建立背景模型的数量
-	float wVar = 1;		//方差权重
+	int nBg = FRAME_NUMBER;		//用来建立背景模型的数量
+	float wVar = VAR_WEIGHT;		//方差权重
 
 	int cnt = 0;
+	bool calcModel= true;
 	cv::Mat frame;
 	cv::Mat meanMat;
 	cv::Mat varMat;
@@ -164,35 +180,51 @@ int bgSubGaussian_demo()
 		capVideo >> frame;
 		cvtColor(frame, frame, COLOR_BGR2GRAY);
 
+		if (frame.empty()) {
+			std::cout << "Unable to read frame!" << std::endl;
+			return -1;
+		}
+
 		//前面的nBg帧，计算背景
-		if (cnt < nBg) {
+		if (cnt <= nBg) {
 
 			srcMats.push_back(frame);
 
 			if (cnt == 0) {
-				std::cout << "reading frame " << std::endl;
+				std::cout << "--- reading frame --- " << std::endl;
+			}
+			else {
+				std::cout << "-";
+				if (cnt % 50 == 0)std::cout << std::endl;
 			}
 		}
-		else if (cnt == nBg) {
-			std::cout << "calculating background models" << std::endl;
-			//计算模型
-			meanMat.create(frame.size(),CV_8UC1);
-			varMat.create(frame.size(),CV_32FC1);
-			//调用计算模型函数
-			calcGaussianBackground(srcMats,meanMat,varMat);
-		}
 		else {
+			if (calcModel) {
+				std::cout << std::endl << "calculating background models" << std::endl;
+				//计算模型
+				meanMat.create(frame.size(), CV_8UC1);
+				varMat.create(frame.size(), CV_32FC1);
+				//调用计算模型函数
+				calcGaussianBackground(srcMats, meanMat, varMat);
+			}
+			calcModel = false;
+
 			//背景差分
 			dstMat.create(frame.size(), CV_8UC1);
 			//利用均值mat和方差mat，计算差分
 			gaussianThreshold(frame, meanMat, varMat, wVar, dstMat);
-			imshow("result",dstMat);
-			imshow("frame",frame);
-			waitKey(30);
+			imshow("result", dstMat);
+			imshow("frame", frame);
+
 		}
 
+		//显示图片，延时30ms，必须要加waitKey()，否则无法显示图像
+		//等待键盘相应，按下ESC键退出
+		if (waitKey(30) == 27) {
+			destroyAllWindows();
+			break;
+		}
 		cnt++;
-
 	}
 
 	return 0;
@@ -272,7 +304,76 @@ int opencvBgSubtrator()
 	}
 
 	Mat inputFrame, frame, foregroundMask, foreground, background;
+
+	int method = BG_METHOD;
+	Ptr<BackgroundSubtractor> model;
+	if (method == 0) {
+		model = createBackgroundSubtractorKNN();
+	}
+	else if (method == 1) {
+		model = createBackgroundSubtractorMOG2();
+	}
+	else {
+		cout << "Can not create background model using provided method: '" << method << "'" << endl;
+	}
+
+	bool doUpdateModel = true;
+	bool doSmoothMask = false;
+
+	while (1) {
+		capVideo >> frame;
+
+		if (frame.empty()) {
+			std::cout << "Unable to read frame!" << std::endl;
+			return -1;
+		}
+
+		// pass the frame to background model
+		model->apply(frame, foregroundMask, doUpdateModel ? -1 : 0);
+
+		// show processed frame
+		imshow("image", frame);
+
+		// show foreground image and mask (with optional smoothing)
+		if (doSmoothMask)
+		{
+			GaussianBlur(foregroundMask, foregroundMask, Size(11, 11), 3.5, 3.5);
+			threshold(foregroundMask, foregroundMask, 10, 255, THRESH_BINARY);
+		}
+		if (foreground.empty())
+			foreground.create(frame.size(), frame.type());
+		foreground = Scalar::all(0);
+		frame.copyTo(foreground, foregroundMask);
+		imshow("foreground mask", foregroundMask);
+		imshow("foreground image", foreground);
+
+		// show background image
+		model->getBackgroundImage(background);
+		if (!background.empty())
+			imshow("mean background image", background);
+
+		// interact with user
+		const char key = (char)waitKey(30);
+		if (key == 27 || key == 'q') // ESC
+		{
+			cout << "Exit requested" << endl;
+			break;
+		}
+		else if (key == ' ')
+		{
+			doUpdateModel = !doUpdateModel;
+			cout << "Toggle background update: " << (doUpdateModel ? "ON" : "OFF") << endl;
+		}
+		else if (key == 's')
+		{
+			doSmoothMask = !doSmoothMask;
+			cout << "Toggle foreground mask smoothing: " << (doSmoothMask ? "ON" : "OFF") << endl;
+		}
+
+	}
+
 	
+
 
 	return 0;
 }
