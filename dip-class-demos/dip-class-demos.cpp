@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include <opencv.hpp>
 #include "funtions.h"
+#include "parameters.h"
 
 using namespace cv;
 using namespace std;
@@ -13,14 +14,25 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
-	//该demo验证并演示，视频中的像素灰度值变换是否呈高斯分布
-	//verifyGaussian();
+	int demo_method = DEMO_METHOD;
 
+	if (demo_method == 0) {
+		//该demo验证并演示，视频中的像素灰度值变换是否呈高斯分布
+		verifyGaussian();
+	}
+	else if(demo_method == 1) {
+		//实现普通背景差分
+		bgSub_demo();
+	}
+	else if(demo_method == 2) {
+		//实现高斯建模的背景差分
+		bgSubGaussian_demo();
 
-	bgSub_demo();
-
-
-	//bgSubGaussian_demo();
+	}
+	else if (demo_method == 3) {
+		//调用opencv的背景差分法demo
+		opencvBgSubtrator();
+	}
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();

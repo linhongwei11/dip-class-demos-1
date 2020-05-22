@@ -4,11 +4,14 @@
 
 //观察的位置
 cv::Point vP;
-
+string wName = "鼠标左键点击选择像素，选择后按任意键开始处理";
 int sub_threshold = 0;
 Mat bgMat;
 Mat subMat;
 Mat bny_subMat;
+
+bool useCamera = USE_CAMERA;
+string videoPath = VIDEO_PATH;
 
 void threshold_track(int, void *)//这里就是定义的一个回调函数，里面是canny相关的操作
 {
@@ -22,8 +25,7 @@ void threshold_track(int, void *)//这里就是定义的一个回调函数，里
 int verifyGaussian()
 {
 	//----------------------读取视频文件--------------------------
-	//VideoCapture capVideo("../testImages\\vtest.avi");
-	VideoCapture capVideo(0);
+	VideoCapture capVideo = createInput(useCamera, videoPath);
 
 	//如果视频打开失败
 	if (!capVideo.isOpened()) {
@@ -53,9 +55,9 @@ int verifyGaussian()
 		if (cnt == 0) {
 			Mat selectMat;
 			frame.copyTo(selectMat);
-			namedWindow("mouseCallback");
-			imshow("mouseCallback", selectMat);
-			setMouseCallback("mouseCallback", on_mouse, &selectMat);
+			namedWindow(wName);
+			imshow(wName, selectMat);
+			setMouseCallback(wName, on_mouse, &selectMat);
 			waitKey(0);
 			destroyAllWindows();
 		}
@@ -85,8 +87,7 @@ int verifyGaussian()
 int bgSub_demo()
 {
 	//----------------------读取视频文件--------------------------
-	VideoCapture capVideo(0);
-	//VideoCapture capVideo("../testImages\\vtest.avi");
+	VideoCapture capVideo = createInput(useCamera, videoPath);
 
 	//如果视频打开失败
 	if (!capVideo.isOpened()) {
@@ -96,9 +97,7 @@ int bgSub_demo()
 
 	//计数器
 	int cnt = 0;
-
 	Mat frame;
-
 	while (1) {
 
 		capVideo >> frame;
@@ -113,7 +112,6 @@ int bgSub_demo()
 			//背景图像和当前图像相减
 			absdiff(frame, bgMat, subMat);
 			//差分结果二值化
-
 			namedWindow("Result", WINDOW_AUTOSIZE);
 			//滑动条创建
 			cv::createTrackbar("threshold", "Result", &sub_threshold, 255, threshold_track);
@@ -132,8 +130,14 @@ int bgSub_demo()
 int bgSubGaussian_demo()
 {
 	//----------------------读取视频文件--------------------------
-	VideoCapture capVideo(0);
-	//VideoCapture capVideo("../testImages\\vtest.avi");
+	//----------------------读取视频文件--------------------------
+	VideoCapture capVideo = createInput(useCamera, videoPath);
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
 
 	//如果视频打开失败
 	if (!capVideo.isOpened()) {
@@ -168,18 +172,19 @@ int bgSubGaussian_demo()
 			if (cnt == 0) {
 				std::cout << "reading frame " << std::endl;
 			}
-
 		}
 		else if (cnt == nBg) {
+			std::cout << "calculating background models" << std::endl;
 			//计算模型
 			meanMat.create(frame.size(),CV_8UC1);
 			varMat.create(frame.size(),CV_32FC1);
-			std::cout << "calculating background models" << std::endl;
+			//调用计算模型函数
 			calcGaussianBackground(srcMats,meanMat,varMat);
 		}
 		else {
 			//背景差分
 			dstMat.create(frame.size(), CV_8UC1);
+			//利用均值mat和方差mat，计算差分
 			gaussianThreshold(frame, meanMat, varMat, wVar, dstMat);
 			imshow("result",dstMat);
 			imshow("frame",frame);
@@ -211,10 +216,10 @@ int calcGaussianBackground(std::vector<cv::Mat> srcMats, cv::Mat & meanMat, cv::
 			for (int i = 0; i < srcMats.size(); i++) {
 				sum += srcMats[i].at<uchar>(h, w);
 			}
-			meanMat.at<uchar>(h, w)=sum / srcMats.size();
+			meanMat.at<uchar>(h, w) =(uchar)(sum / srcMats.size());
 			//求方差
 			for (int i = 0; i < srcMats.size(); i++) {
-				var += pow((srcMats[i].at<uchar>(h, w) - meanMat.at<uchar>(h, w)), 2);
+				var += (float)pow((srcMats[i].at<uchar>(h, w) - meanMat.at<uchar>(h, w)), 2);
 			}
 			varMat.at<float>(h, w) = var / srcMats.size();
 		}
@@ -225,9 +230,6 @@ int calcGaussianBackground(std::vector<cv::Mat> srcMats, cv::Mat & meanMat, cv::
 
 int gaussianThreshold(cv::Mat srcMat, cv::Mat meanMat, cv::Mat varMat, float weight, cv::Mat & dstMat)
 {
-	int srcI;
-	int meanI;
-	int dstI;
 	int rows = srcMat.rows;
 	int cols = srcMat.cols;
 
@@ -235,10 +237,8 @@ int gaussianThreshold(cv::Mat srcMat, cv::Mat meanMat, cv::Mat varMat, float wei
 	{
 		for (int w = 0; w < cols; w++)
 		{
-			srcI = srcMat.at<uchar>(h, w);
-			meanI = meanMat.at<uchar>(h, w);
-			int dif = abs(srcI - meanI);
-			int th = weight*varMat.at<float>(h, w);
+			int dif = abs(srcMat.at<uchar>(h, w) - meanMat.at<uchar>(h, w));
+			int th = (int)(weight*varMat.at<float>(h, w));
 
 			if (dif > th) {
 
@@ -249,6 +249,30 @@ int gaussianThreshold(cv::Mat srcMat, cv::Mat meanMat, cv::Mat varMat, float wei
 			}
 		}
 	}
+
+	return 0;
+}
+
+//调用opencv的背景差分函数方法
+int opencvBgSubtrator()
+{
+	//----------------------读取视频文件--------------------------
+	VideoCapture capVideo = createInput(useCamera, videoPath);
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
+
+	//如果视频打开失败
+	if (!capVideo.isOpened()) {
+		std::cout << "Unable to open video!" << std::endl;
+		return -1;
+	}
+
+	Mat inputFrame, frame, foregroundMask, foreground, background;
+	
 
 	return 0;
 }
@@ -268,7 +292,7 @@ void on_mouse(int EVENT, int x, int y, int flags, void* userdata)
 		vP.y = y;
 		drawMarker(hh,vP,Scalar(255,255,255));
 		//circle(hh, vP, 4, cvScalar(255, 255, 255), -1);
-		imshow("mouseCallback", hh);
+		imshow(wName, hh);
 		return;
 	}
 	break;
@@ -296,4 +320,17 @@ int drawHist(cv::Mat & histMat, float * srcHist, int bin_width, int bin_heght)
 	}
 
 	return 0;
+}
+
+VideoCapture createInput(bool useCamera,std::string videoPath)
+{
+	//选择输入
+	VideoCapture capVideo;
+	if (useCamera) {
+		capVideo.open(0);
+	}
+	else {
+		capVideo.open(videoPath);
+	}
+	return capVideo;
 }
