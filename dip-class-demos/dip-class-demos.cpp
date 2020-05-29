@@ -1,6 +1,5 @@
 // dip-class-demos.cpp : 定义控制台应用程序的入口点。
 //
-
 #include "stdafx.h"
 #include <opencv.hpp>
 #include "funtions.h"
@@ -22,7 +21,10 @@ int main()
 	}
 	else if (method == 1) {
 		//cam shift
-		camShifitdemo();
+		templateMatching_demo();
+	}
+	else if (method == 2) {
+		opticalFlow_demo();
 	}
 
 
