@@ -22,6 +22,8 @@ int templateMatching_demo()
 	Mat refMat;
 	Mat dispMat;
 
+	TemplateMatchModes
+
 	int cnt = 0;
 	while (1) {
 
