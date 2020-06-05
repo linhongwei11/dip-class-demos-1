@@ -22,8 +22,6 @@ int templateMatching_demo()
 	Mat refMat;
 	Mat dispMat;
 
-	TemplateMatchModes
-
 	int cnt = 0;
 	while (1) {
 
@@ -32,12 +30,11 @@ int templateMatching_demo()
 
 		if (cnt == 0) {
 			Rect2d r;
-			r = selectROI(frame, true);
+			r = selectROI(frame);
 			tempMat = frame(r);
 			tempMat.copyTo(refMat);
 			destroyAllWindows();
 		}
-
 
 
 		int match_method = 0;
@@ -136,4 +133,16 @@ int opticalFlow_demo()
 }
 
 
-VideoCapture createInput(bool useCamera, std::string videoPath) {	VideoCapture capVideo;	if (useCamera) {	capVideo.open(0);		}		else {		capVideo.open(videoPath);	}	return capVideo;}
+VideoCapture createInput(bool useCamera, std::string videoPath) {
+
+	VideoCapture capVideo;
+
+	if (useCamera) {
+	capVideo.open(0);
+		}
+		else {
+		capVideo.open(videoPath);
+	}
+
+	return capVideo;
+}
