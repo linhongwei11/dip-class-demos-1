@@ -136,4 +136,16 @@ int opticalFlow_demo()
 }
 
 
-VideoCapture createInput(bool useCamera, std::string videoPath) {	VideoCapture capVideo;	if (useCamera) {	capVideo.open(0);		}		else {		capVideo.open(videoPath);	}	return capVideo;}
+VideoCapture createInput(bool useCamera, std::string videoPath) {
+
+	VideoCapture capVideo;
+
+	if (useCamera) {
+	capVideo.open(0);
+		}
+		else {
+		capVideo.open(videoPath);
+	}
+
+	return capVideo;
+}
