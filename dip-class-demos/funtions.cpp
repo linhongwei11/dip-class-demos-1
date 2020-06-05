@@ -22,6 +22,8 @@ int templateMatching_demo()
 	Mat refMat;
 	Mat dispMat;
 
+	TemplateMatchModes
+
 	int cnt = 0;
 	while (1) {
 
@@ -30,11 +32,12 @@ int templateMatching_demo()
 
 		if (cnt == 0) {
 			Rect2d r;
-			r = selectROI(frame);
+			r = selectROI(frame, true);
 			tempMat = frame(r);
 			tempMat.copyTo(refMat);
 			destroyAllWindows();
 		}
+
 
 
 		int match_method = 0;
