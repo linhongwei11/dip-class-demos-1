@@ -5,6 +5,7 @@
   <PropertyGroup>
     <IncludePath>D:\Opencv\Opencv341\opencv\build\include\opencv2;D:\Opencv\Opencv341\opencv\build\include;D:\Opencv\Opencv341\opencv\build\include\opencv;$(IncludePath)</IncludePath>
     <LibraryPath>D:\Opencv\Opencv341\opencv\build\x64\vc14\lib;$(LibraryPath)</LibraryPath>
+    <_PropertySheetDisplayName>Opencv342x64xxx</_PropertySheetDisplayName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

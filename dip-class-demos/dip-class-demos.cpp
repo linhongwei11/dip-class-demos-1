@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include <opencv.hpp>
 #include "funtions.h"
+#include "parameters.h"
 
 using namespace cv;
 using namespace std;
@@ -13,6 +14,11 @@ int main()
 	//开始计时
 	double start = static_cast<double>(cvGetTickCount());
 
+	int method = DEMO_METHOD;
+
+	if (method == 0) {
+		yoloV3();
+	}
 
 	//结束计时
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
