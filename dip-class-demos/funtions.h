@@ -1,5 +1,4 @@
 #pragma once
-
 #include "parameters.h"
 #include <opencv.hpp>
 #include <dnn.hpp>
