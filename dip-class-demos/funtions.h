@@ -19,4 +19,8 @@ std::vector<cv::String> getOutputsNames(const cv::dnn::Net& net);
 //»æÖÆ¼ì²â½á¹û
 void drawPred(int classId, float conf, int left, int top, int right, int bottom, cv::Mat& frame);
 
-void yoloV3();
+int yoloV3();
+
+int openpose();
+
+

@@ -19,6 +19,9 @@ int main()
 	if (method == 0) {
 		yoloV3();
 	}
+	else if (method == 1) {
+		openpose();
+	}
 
 	//½áÊø¼ÆÊ±
 	double time = ((double)cvGetTickCount() - start) / cvGetTickFrequency();
