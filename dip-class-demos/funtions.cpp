@@ -315,7 +315,6 @@ int openpose()
 			circle(frame, b, 3, Scalar(0, 0, 200), -1);
 		}
 
-
 		imshow("frame",frame);
 
 		waitKey(30);
