@@ -215,7 +215,6 @@ int openpose()
 
 	cv::dnn::Net net = cv::dnn::readNetFromCaffe(modelTxt, modelBin);
 
-
 	int W_in = 368;
 	int H_in = 368;
 	float thresh = 0.1;
